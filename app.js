@@ -28,7 +28,7 @@ const User = require("./models/User");
 const Car = require("./models/Pg");
 
 app.use("/api/users", require("./routes/user"));
-app.use("/api/cars", require("./routes/pg"));
+app.use("/api/pgs", require("./routes/pg"));
 
 app.get("*", (req, res) => {
   res.status(404).json({

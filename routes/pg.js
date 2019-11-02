@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 let {
-  cars,
+  pgs,
   addPg,
   updatePg,
   deletePg,
