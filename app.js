@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 });
 
 const User = require("./models/User");
-const Car = require("./models/Pg");
+const Pg = require("./models/Pg");
 
 app.use("/api/users", require("./routes/user"));
 app.use("/api/pgs", require("./routes/pg"));

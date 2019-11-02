@@ -32,7 +32,7 @@ const PgSchema = mongoose.Schema({
         },
         pincode: {
             type: String,
-            required: true
+		    required: true
         }
     },
     totalRooms: {
