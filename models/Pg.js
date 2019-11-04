@@ -39,6 +39,14 @@ const PgSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    mealsIncluded: {
+        type: Boolean,
+        default: false
+    },
+    accomodationFor: {
+        type: String,
+        required: true
+    },
     isWholeBooked: {
         type: Boolean,
         default: false
