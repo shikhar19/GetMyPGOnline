@@ -11,20 +11,20 @@ const PgSchema = mongoose.Schema({
     },
     contact: {
         type: String,
-		required: true
+	required: true
     },
     address: {
         line1: {
             type: String,
-		    required: true
+	    required: true
         },
         line2: {
             type: String,
-		    required: true
+	    required: true
         },
         city: {
             type: String,
-		    required: true
+	    required: true
         },
         state: {
             type: String,
@@ -32,7 +32,7 @@ const PgSchema = mongoose.Schema({
         },
         pincode: {
             type: String,
-		    required: true
+	    required: true
         }
     },
     totalRooms: {
