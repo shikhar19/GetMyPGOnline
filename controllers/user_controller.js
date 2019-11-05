@@ -95,11 +95,11 @@ module.exports.profile = (req, res) => {
 };
 
 module.exports.deleteUser = async (req, res) => {
-	let user = await User.findById(req.params.id);
-	if (user) {
-		User.deleteById(req.params.id);
-		res.status(200).json({ message: "Deleted Successfully!!" });
-	} else {
-		res.status(400).json({ message: "No such User!!" });
-	}
+  let user = await User.findById(req.params.id);
+  if (user) {
+    User.deleteById(req.params.id);
+    res.status(200).json({ message: "Deleted Successfully!!" });
+  } else {
+    res.status(400).json({ message: "No such User!!" });
+  }
 };

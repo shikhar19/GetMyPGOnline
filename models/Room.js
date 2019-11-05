@@ -10,8 +10,8 @@ const RoomSchema = mongoose.Schema({
         ref: 'Pg'
     },
     price: {
-          type: String,
-          required: true
+        type: String,
+        required: true
     },
     booking: {
         tenant: {

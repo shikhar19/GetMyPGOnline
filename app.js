@@ -31,9 +31,9 @@ app.use("/api/users", require("./routes/user"));
 app.use("/api/pgs", require("./routes/pg"));
 
 app.get("*", (req, res) => {
-  res.status(404).json({
-    message: "Page Not Found"
-  });
+	res.status(404).json({
+		message: "Page Not Found"
+	});
 });
 
 const PORT = process.env.PORT;

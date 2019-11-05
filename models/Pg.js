@@ -16,15 +16,15 @@ const PgSchema = mongoose.Schema({
     address: {
         line1: {
             type: String,
-	        required: true
+            required: true
         },
         line2: {
             type: String,
-	        required: true
+            required: true
         },
         city: {
             type: String,
-	        required: true
+            required: true
         },
         state: {
             type: String,
