@@ -7,7 +7,7 @@ module.exports.pgs = async (req, res) => {
 
 module.exports.addPg = async (req, res) => {
 	let { pgName, description, contact, totalRooms, mealsIncluded, accomodationFor } = req.body;
-	let pg = await Pg.findOne({ vehicleNumber });
+	let pg = await Pg.findOne({ contact });
 	if (pg) {
 		res.status(400).json({ message: "Already registered!!" });
 	} else {
