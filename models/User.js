@@ -18,6 +18,26 @@ const UserSchema = mongoose.Schema({
 		type: String,
 		required: true
 	},
+	resetPwd: {
+		token: {
+			type: String
+		},
+		expiresIn: {
+			type: Date
+		}
+	},
+	isVerified: {
+		type: Boolean,
+		default: false
+	},
+	verifyEmail: {
+		token: { 
+			type: String
+		},
+		expiresIn: {
+			type: Date
+		}
+	},
 	contact: {
 		type: String,
 		required: true
