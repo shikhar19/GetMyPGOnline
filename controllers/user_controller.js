@@ -95,7 +95,14 @@ module.exports.profile = (req, res) => {
 };
 
 module.exports.updateUser = (req, res) => {
+  let {
+    name,
+    password
+  } = req.body;
 
+  passwordRegex = /^[\S]{8,}/;
+  if (passwordRegex.test(String(password))) {
+  }
 }
 
 module.exports.deleteUser = async (req, res) => {
