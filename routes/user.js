@@ -7,7 +7,8 @@ let {
   register,
   login,
   profile,
-  deleteUser
+  deleteUser,
+  updateUser
 } = require('../controllers/user_controller')
 
 router.post('/register', register);
