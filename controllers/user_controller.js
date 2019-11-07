@@ -94,10 +94,18 @@ module.exports.profile = (req, res) => {
   ).status(200);
 };
 
-module.exports.updateUser = (req, res) => {
+// module.exports.profile = async(req, res) => {
+//   let user = await User.findById(req.user.data._id);
+//   return res.json(
+//     user
+//   ).status(200);
+// };
+
+module.exports.updateUser = async (req, res) => {
   let {
     name,
-    password
+    password,
+    confirmPassword
   } = req.body;
 
   passwordRegex = /^[\S]{8,}/;
@@ -106,9 +114,16 @@ module.exports.updateUser = (req, res) => {
     {
       res.status(400).json({ message: "Entries Cannot be Updated!!" });
     }
+    else if(password != confirmPassword)
+    {
+      res.status(400).json({ message: "Password and Confirm Password doesn't Match!!" });
+    }
     else
     {
-      
+      const salt = await bcrypt.genSalt(10);
+      password = await bcrypt.hash(password, salt);
+      await User.updateOne( {"_id" : req.user.data._id}, {$set: { "name" : name, "password" : password}});
+      res.status(200).json({ message: "Updated Successfully!!" });
     }
   }
 }
