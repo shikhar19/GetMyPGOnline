@@ -102,9 +102,9 @@ module.exports.updateUser = (req, res) => {
 
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
-    if(req.user.name === name)
+    if(req.user.name === name && req.user.password === password)
     {
-      res.status(400).json({ message: "Same Name Cannot be Updated!" });
+      res.status(400).json({ message: "Entries Cannot be Updated!!" });
     }
   }
 }
