@@ -102,6 +102,10 @@ module.exports.updateUser = (req, res) => {
 
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
+    if(req.user.name === name)
+    {
+      res.status(400).json({ message: "Same Name Cannot be Updated!" });
+    }
   }
 }
 
@@ -109,7 +113,7 @@ module.exports.deleteUser = async (req, res) => {
   let user = await User.findById(req.params.id);
   if (user) {
     if(user.role == "admin") {
-      res.status(400).json({ message: "Cannot Delete User!!" });  
+      res.status(400).json({ message: "Cannot Delete User!!" });
     }
     else {
       await User.deleteOne( { "_id" : req.params.id } );
