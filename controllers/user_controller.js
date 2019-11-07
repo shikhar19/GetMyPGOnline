@@ -94,6 +94,10 @@ module.exports.profile = (req, res) => {
   ).status(200);
 };
 
+module.exports.updateUser = (req, res) => {
+  
+}
+
 module.exports.deleteUser = async (req, res) => {
   let user = await User.findById(req.params.id);
   if (user) {
