@@ -95,7 +95,7 @@ module.exports.profile = (req, res) => {
 };
 
 module.exports.updateUser = (req, res) => {
-  
+
 }
 
 module.exports.deleteUser = async (req, res) => {
@@ -106,7 +106,6 @@ module.exports.deleteUser = async (req, res) => {
     }
     else {
       await User.deleteOne( { "_id" : req.params.id } );
-      debugger
       res.status(200).json({ message: "Deleted Successfully!!" });
     }
   } else {
