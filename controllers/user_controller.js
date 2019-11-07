@@ -75,9 +75,10 @@ module.exports.login = async (req, res) => {
     }, process.env.secret, {
       expiresIn: 604800 // for 1 week time in milliseconds
     });
-    return res.json({
+    return res.header("x-auth-token", token)
+    .json({
       success: true,
-      token: "JWT " + token
+      token: token
     }).status(200);
   } else {
     return res.json({
@@ -97,8 +98,14 @@ module.exports.profile = (req, res) => {
 module.exports.deleteUser = async (req, res) => {
   let user = await User.findById(req.params.id);
   if (user) {
-    User.deleteById(req.params.id);
-    res.status(200).json({ message: "Deleted Successfully!!" });
+    if(user.role == "admin") {
+      res.status(400).json({ message: "Cannot Delete User!!" });  
+    }
+    else {
+      await User.deleteOne( { "_id" : req.params.id } );
+      debugger
+      res.status(200).json({ message: "Deleted Successfully!!" });
+    }
   } else {
     res.status(400).json({ message: "No such User!!" });
   }
