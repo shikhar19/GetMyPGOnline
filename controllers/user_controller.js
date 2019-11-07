@@ -89,7 +89,6 @@ module.exports.login = async (req, res) => {
 }
 
 module.exports.profile = (req, res) => {
-  // console.log(req.user);
   return res.json(
     req.user
   ).status(200);
