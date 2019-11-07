@@ -106,6 +106,10 @@ module.exports.updateUser = (req, res) => {
     {
       res.status(400).json({ message: "Entries Cannot be Updated!!" });
     }
+    else
+    {
+      
+    }
   }
 }
 
