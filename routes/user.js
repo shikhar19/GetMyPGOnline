@@ -14,7 +14,7 @@ let {
 router.post('/register', register);
 router.post('/login', login);
 router.get('/profile', allAuth, profile);
-router.get('/delete/:id', adminAuth, deleteUser);
 router.post('/update', allAuth, updateUser);
+router.get('/delete/:id', adminAuth, deleteUser);
 
 module.exports = router;
