@@ -88,41 +88,34 @@ module.exports.login = async (req, res) => {
   }
 }
 
-module.exports.profile = (req, res) => {
-  return res.json(
-    req.user
-  ).status(200);
+module.exports.profile = async(req, res) => {
+  let user = await User.findById(req.user.data._id);
+  return res.status(200).json(user);
 };
 
-// module.exports.profile = async(req, res) => {
-//   let user = await User.findById(req.user.data._id);
-//   return res.json(
-//     user
-//   ).status(200);
-// };
-
 module.exports.updateUser = async (req, res) => {
+  let user = await User.findById({"_id": req.user.data._id});
   let {
     name,
     password,
     confirmPassword
   } = req.body;
-
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
-    if(req.user.name === name && req.user.password === password)
-    {
-      res.status(400).json({ message: "Entries Cannot be Updated!!" });
-    }
-    else if(password != confirmPassword)
+    if(password != confirmPassword)
     {
       res.status(400).json({ message: "Password and Confirm Password doesn't Match!!" });
+    }
+    else if(user.name === name && user.password === password)
+    {
+      res.status(400).json({ message: "Entries Are Same Already!!" });
     }
     else
     {
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
       await User.updateOne( {"_id" : req.user.data._id}, {$set: { "name" : name, "password" : password}});
+      await User.save();
       res.status(200).json({ message: "Updated Successfully!!" });
     }
   }
