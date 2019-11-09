@@ -56,10 +56,10 @@ module.exports.login = async (req, res) => {
   } = req.body;
   let user = await User.findOne({ email });
   if (!user) {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: "User not found!"
-    }).status(400);
+    });
   }
   let isMatch = await bcrypt.compare(password, user.password);
   if (isMatch) {
@@ -76,32 +76,33 @@ module.exports.login = async (req, res) => {
       expiresIn: 604800 // for 1 week time in milliseconds
     });
     return res.header("x-auth-token", token)
-    .json({
-      success: true,
-      token: token
-    }).status(200);
+      .status(200)
+      .json({
+        success: true,
+        token: token
+      });
   } else {
-    return res.json({
+    return res.status(401).json({
       success: true,
       message: "Wrong Password."
-    }).status(401);
+    });
   }
 }
 
-module.exports.profile = async(req, res) => {
+module.exports.profile = async (req, res) => {
   let user = await User.findById(req.user.data._id);
-    id = user._id;
-    isVerified = user.isVerified;
-    name = user.name;
-    email = user.email;
-    password = user.password; //removed before publishing
-    contact = user.contact;
-    role = user.role;
+  id = user._id;
+  isVerified = user.isVerified;
+  name = user.name;
+  email = user.email;
+  password = user.password; //removed before publishing
+  contact = user.contact;
+  role = user.role;
   return res.status(200).json({ "_id": id, "isVerified": isVerified, "name": name, "email": email, "password": password, "contact": contact, "role": role });
 };
 
 module.exports.updateUser = async (req, res) => {
-  let user = await User.findById({"_id": req.user.data._id});
+  let user = await User.findById({ "_id": req.user.data._id });
   let {
     name,
     password,
@@ -109,19 +110,16 @@ module.exports.updateUser = async (req, res) => {
   } = req.body;
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
-    if(password != confirmPassword)
-    {
+    if (password != confirmPassword) {
       res.status(400).json({ message: "Password and Confirm Password doesn't Match!!" });
     }
-    else if(user.name === name && user.password === password)
-    {
+    else if (user.name === name && user.password === password) {
       res.status(400).json({ message: "Entries Are Same Already!!" });
     }
-    else
-    {
+    else {
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
-      await User.updateOne( {"_id" : req.user.data._id}, {$set: { "name" : name, "password" : password}});
+      await User.updateOne({ "_id": req.user.data._id }, { $set: { "name": name, "password": password } });
       res.status(200).json({ message: "Updated Successfully!!" });
     }
   }
@@ -130,11 +128,11 @@ module.exports.updateUser = async (req, res) => {
 module.exports.deleteUser = async (req, res) => {
   let user = await User.findById(req.params.id);
   if (user) {
-    if(user.role == "admin") {
+    if (user.role == "admin") {
       res.status(400).json({ message: "Cannot Delete User!!" });
     }
     else {
-      await User.deleteOne( { "_id" : req.params.id } );
+      await User.deleteOne({ "_id": req.params.id });
       res.status(200).json({ message: "Deleted Successfully!!" });
     }
   } else {
