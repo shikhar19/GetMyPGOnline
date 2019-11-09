@@ -90,7 +90,14 @@ module.exports.login = async (req, res) => {
 
 module.exports.profile = async(req, res) => {
   let user = await User.findById(req.user.data._id);
-  return res.status(200).json(user);
+    id = user._id;
+    isVerified = user.isVerified;
+    name = user.name;
+    email = user.email;
+    password = user.password; //removed before publishing
+    contact = user.contact;
+    role = user.role;
+  return res.status(200).json({ "_id": id, "isVerified": isVerified, "name": name, "email": email, "password": password, "contact": contact, "role": role });
 };
 
 module.exports.updateUser = async (req, res) => {
@@ -102,6 +109,7 @@ module.exports.updateUser = async (req, res) => {
   } = req.body;
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
+    debugger
     if(password != confirmPassword)
     {
       res.status(400).json({ message: "Password and Confirm Password doesn't Match!!" });
@@ -115,7 +123,6 @@ module.exports.updateUser = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
       await User.updateOne( {"_id" : req.user.data._id}, {$set: { "name" : name, "password" : password}});
-      await User.save();
       res.status(200).json({ message: "Updated Successfully!!" });
     }
   }
