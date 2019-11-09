@@ -109,7 +109,6 @@ module.exports.updateUser = async (req, res) => {
   } = req.body;
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
-    debugger
     if(password != confirmPassword)
     {
       res.status(400).json({ message: "Password and Confirm Password doesn't Match!!" });
