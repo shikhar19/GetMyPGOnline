@@ -47,16 +47,18 @@ module.exports.login = async (req, res) => {
     email,
     password
   } = req.body;
-  debugger
   let user = await User.findOne({ email });
   if (!user) {
     return res.status(400).json({ success: false, message: 'User not found!' });
   }
   let isMatch = await bcrypt.compare(password, user.password);
-  if (isMatch && user.isVerified == false) {
-    return res.status(401).json({ success: false, message: "Verify your email id!" });
+  if (!isMatch) {
+    return res.status(401).json({ success: false, message: "Wrong Credentials." });
   }
-  else if(isMatch && user.isVerified == true) {
+  else if (isMatch && user.isVerified == false) {
+    return res.status(401).json({ success: false, message: "Verify your EmailID!" });
+  }
+  else {
     const token = jwt.sign({
       type: "user",
       data: {
@@ -71,8 +73,6 @@ module.exports.login = async (req, res) => {
     });
     return res.header("x-auth-token", token)
       .status(200).json({ success: true, token: token });
-  } else {
-    return res.status(401).json({ success: false, message: "Wrong Password." });
   }
 }
 
