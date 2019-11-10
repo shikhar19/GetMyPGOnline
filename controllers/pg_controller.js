@@ -9,10 +9,10 @@ module.exports.addPg = async (req, res) => {
 	let { pgName, description, contact, totalRooms, mealsIncluded, accomodationFor } = req.body;
 	let pg = await Pg.findOne({ contact });
 	if (pg) {
-		res.status(400).json({ message: "Already registered!!" });
+		res.status(400).json({ message: "Already registered!" });
 	} else {
 		await Pg.create({ pgName, description, contact, totalRooms, mealsIncluded, accomodationFor });
-		res.status(200).json({ message: "Added Successfully!!" });
+		res.status(200).json({ message: "Added Successfully!" });
 	}
 };
 
@@ -21,9 +21,9 @@ module.exports.addPg = async (req, res) => {
 // 	let car = await Car.findById(req.params.id);
 // 	if (!car.isBooked) {
 // 		car = await Car.findByIdAndUpdate(req.params.id, req.body);
-// 		res.status(200).json({ message: "Updated successfully!!" });
+// 		res.status(200).json({ message: "Updated successfully!" });
 // 	} else {
-// 		res.status(404).json({ message: "No such car!!" });
+// 		res.status(404).json({ message: "No such car!" });
 // 	}
 // };
 
@@ -31,9 +31,9 @@ module.exports.addPg = async (req, res) => {
 // 	let car = await Car.findById(req.params.id);
 // 	if (car) {
 // 		Car.deleteById(req.params.id);
-// 		res.status(200).json({ message: "Deleted Successfully!!" });
+// 		res.status(200).json({ message: "Deleted Successfully!" });
 // 	} else {
-// 		res.status(400).json({ message: "No such Car!!" });
+// 		res.status(400).json({ message: "No such Car!" });
 // 	}
 // };
 
@@ -63,14 +63,14 @@ module.exports.addPg = async (req, res) => {
 // 	let { returnDate } = req.body;
 // 	let car = await Car.findById(req.params.id);
 // 	if (car.isBooked) {
-// 		res.status(400).json({ message: "Already Booked!!" });
+// 		res.status(400).json({ message: "Already Booked!" });
 // 	} else {
 // 		car.isBooked = true;
 // 		car.booking.customer = req.user.id;
 // 		car.booking.issueDate = new Date(Date(Date.now())).toDateString();
 // 		car.booking.returnDate = returnDate;
 // 		await car.save();
-// 		res.status(400).json({ message: "Booked!!" });
+// 		res.status(400).json({ message: "Booked!" });
 // 	}
 // };
 
@@ -81,6 +81,6 @@ module.exports.addPg = async (req, res) => {
 // 	car.booking.issueDate = null;
 // 	car.booking.returnCar = null;
 // 	await car.save();
-// 	res.status(200).json({ message: "Returned successfully!!" });
+// 	res.status(200).json({ message: "Returned successfully!" });
 // };
 
