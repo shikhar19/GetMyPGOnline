@@ -2,6 +2,29 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require("../models/User");
 
+sendVerificationLink = async (req, res) => {
+  let email = req;
+  let user = await User.findOne({ email });
+  if(user)
+  {
+    if(user.isVerified === true)
+    {
+      return res.status(400).json({ message: "Already Verified!" });
+    }
+    else
+    {
+      const salt = await bcrypt.genSalt(10) + Date.now();
+      token = await bcrypt.hash(email, salt);
+      user.verifyEmail.token = token;
+      user.verifyEmail.expiresIn = Date.now() + 3600000;
+      await user.save();
+    }
+  }
+  else {
+    return res.status(400).json({ message: "You are not registered with us!" });
+  }
+}
+
 module.exports.register = async (req, res) => {
   let {
     name,
@@ -29,6 +52,7 @@ module.exports.register = async (req, res) => {
           const salt = await bcrypt.genSalt(10);
           newUser.password = await bcrypt.hash(newUser.password, salt);
           user = await User.create(newUser);
+          await sendVerificationLink(newUser.email);
           return res.status(200).json({ success: true, message: 'Registeration Successful!' });
         }
       } else {
@@ -126,4 +150,4 @@ module.exports.deleteUser = async (req, res) => {
   } else {
     res.status(400).json({ message: "No such User!" });
   }
-};
+}
