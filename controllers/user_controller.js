@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require("../models/User");
+const nodemailer = require('nodemailer');
+require("dotenv").config();
 
 sendVerificationLink = async (req, res) => {
   let email = req;
@@ -18,10 +20,40 @@ sendVerificationLink = async (req, res) => {
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
       await user.save();
+      const message = `Confirmation Link: <a href="localhost:${process.env.PORT}/api/users/verifyEmail/${email}/${token}">Confirm Here</a><br>
+      Note: Do not reply to this email.<br><br>
+      Thanks,<br>
+      Team 'Find PG Online'`
+      let transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.email,
+            pass: process.env.password
+        },
+        tls:{
+          rejectUnauthorized:false
+        }
+      });
+    
+      let mailOptions = {
+          from: `FIND PG ONLINE <${process.env.email}>`,
+          to: email,
+          subject: 'Please Verify your E-mail Address',
+          html: message
+      };
+    
+      transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+              console.log(error);
+              return res.status(400).json({ success: false, message: 'Registeration Successful!', error: 'Verification Email cannot be sent. Login to recieve!' });
+          }
+          console.log('Message sent: %s', info.messageId);
+          return res.status(200).json({ success: true, message: 'Registeration Successful! Verify Your Email Address!' });
+      });
     }
   }
   else {
-    return res.status(400).json({ message: "You are not registered with us!" });
+    return res.status(400).json({ success: false, message: "User not found!" });
   }
 }
 
@@ -52,17 +84,16 @@ module.exports.register = async (req, res) => {
           const salt = await bcrypt.genSalt(10);
           newUser.password = await bcrypt.hash(newUser.password, salt);
           user = await User.create(newUser);
-          await sendVerificationLink(newUser.email);
-          return res.status(200).json({ success: true, message: 'Registeration Successful!' });
+          return await sendVerificationLink(newUser.email);
         }
       } else {
-        res.status(400).json({ message: 'Contact number not valid!' });
+        return res.status(400).json({ message: 'Contact number not valid!' });
       }
     } else {
-      res.status(400).json({ message: 'Password must be atleast 8 characters long!' });
+      return res.status(400).json({ message: 'Password must be atleast 8 characters long!' });
     }
   } else {
-    res.status(400).json({ message: 'EmailID is not valid!' });
+    return res.status(400).json({ message: 'EmailID is not valid!' });
   }
 }
 
@@ -80,6 +111,8 @@ module.exports.login = async (req, res) => {
     return res.status(401).json({ success: false, message: "Wrong Credentials." });
   }
   else if (isMatch && user.isVerified == false) {
+    if(user.verifyEmail.expiresIn < Date.now())
+      console.log("Hello"); //send verification mail again
     return res.status(401).json({ success: false, message: "Verify your EmailID!" });
   }
   else {
@@ -121,7 +154,6 @@ module.exports.updateUser = async (req, res) => {
   } = req.body;
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
-    debugger
     if (password != confirmPassword) {
       res.status(400).json({ message: "Password and Confirm Password doesn't Match!" });
     }
