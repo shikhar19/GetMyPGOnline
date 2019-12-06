@@ -1,19 +1,33 @@
 const Pg = require("../models/Pg");
 
 module.exports.pgs = async (req, res) => {
-	let pgs = await Pg.find().sort({ createdAt: "desc", isWholeBooked: "asc" });
-	res.status(200).json({ message: "success", pgs });
+  let pgs = await Pg.find().sort({ createdAt: "desc", isWholeBooked: "asc" });
+  res.status(200).json({ message: "success", pgs });
 };
 
 module.exports.addPg = async (req, res) => {
-	let { pgName, description, contact, totalRooms, mealsIncluded, accomodationFor } = req.body;
-	let pg = await Pg.findOne({ contact });
-	if (pg) {
-		res.status(400).json({ message: "Already registered!" });
-	} else {
-		await Pg.create({ pgName, description, contact, totalRooms, mealsIncluded, accomodationFor });
-		res.status(200).json({ message: "Added Successfully!" });
-	}
+  let {
+    pgName,
+    description,
+    contact,
+    totalRooms,
+    mealsIncluded,
+    accomodationFor
+  } = req.body;
+  let pg = await Pg.findOne({ contact });
+  if (pg) {
+    res.status(400).json({ message: "Already registered!" });
+  } else {
+    await Pg.create({
+      pgName,
+      description,
+      contact,
+      totalRooms,
+      mealsIncluded,
+      accomodationFor
+    });
+    res.status(200).json({ message: "Added Successfully!" });
+  }
 };
 
 // module.exports.updateCar = async (req, res) => {
@@ -83,4 +97,3 @@ module.exports.addPg = async (req, res) => {
 // 	await car.save();
 // 	res.status(200).json({ message: "Returned successfully!" });
 // };
-

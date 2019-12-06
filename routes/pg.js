@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 let {
@@ -12,15 +12,21 @@ let {
   viewPg,
   duePayment,
   allPaymentDues
-} = require('../controllers/pg_controller');
+} = require("../controllers/pg_controller");
 
-let { adminAuth, ownerAuth, tenantAuth, allAuth, someAuth } = require('../config/auth');
+let {
+  adminAuth,
+  ownerAuth,
+  tenantAuth,
+  allAuth,
+  someAuth
+} = require("../config/auth");
 
-router.get('/', allAuth, pgs);
-router.post('/add', ownerAuth, addPg);
+router.get("/", allAuth, pgs);
+router.post("/add", ownerAuth, addPg);
 // router.post('/update/:id', ownerAuth, updatePg);
 // router.get('/delete/:id', someAuth, deletePg);
-// router.get('/available', allAuth, showAvailablePgs);    
+// router.get('/available', allAuth, showAvailablePgs);
 // router.post('/book/:id', tenantAuth, bookPg);
 // router.get('/return/:id', ownerAuth, returnPg);
 // router.get('/:id', allAuth, viewPg);
