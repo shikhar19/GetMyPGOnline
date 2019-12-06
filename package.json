@@ -1,5 +1,5 @@
 {
-  "name": "project",
+  "name": "Get-PG-APP",
   "version": "1.0.0",
   "description": "An Application to book PG online",
   "main": "app.js",
