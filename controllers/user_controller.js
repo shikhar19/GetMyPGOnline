@@ -146,6 +146,65 @@ module.exports.login = async (req, res) => {
   }
 };
 
+module.exports.verifyEmail = async (req, res) => {
+  let { token } = req.params;
+  let user = await User.findOne({
+    "verifyEmail.expiresIn": { $gte: Date.now() },
+    "verifyEmail.token": token
+  });
+  if (user) {
+    if (user.isVerified === true) {
+      const token = jwt.sign(
+        {
+          type: "user",
+          data: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            contact: user.contact,
+            role: user.role
+          }
+        },
+        process.env.secret,
+        {
+          expiresIn: 604800 // for 1 week time in milliseconds
+        }
+      );
+      res
+        .header("x-auth-token", token)
+        .status(200)
+        .json({ success: true, message: "Already Verified", token: token });
+    } else {
+      user.isVerified = true;
+      user.verifyEmail.token = undefined;
+      user.verifyEmail.expiresIn = undefined;
+      await user.save();
+      const token = jwt.sign(
+        {
+          type: "user",
+          data: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            contact: user.contact,
+            role: user.role
+          }
+        },
+        process.env.secret,
+        {
+          expiresIn: 604800 // for 1 week time in milliseconds
+        }
+      );
+      res
+        .header("x-auth-token", token)
+        .status(200)
+        .json({ success: true, message: "Email Verified", token: token });
+    }
+  } else {
+    res.status(400).json({ message: "Invalid Request or Link Expired" });
+  }
+};
+
 module.exports.profile = async (req, res) => {
   let user = await User.findById(req.user.data._id);
   id = user._id;
