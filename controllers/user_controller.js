@@ -147,8 +147,9 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.verifyEmail = async (req, res) => {
-  let { token } = req.params;
+  let { email, token } = req.params;
   let user = await User.findOne({
+    email: email,
     "verifyEmail.expiresIn": { $gte: Date.now() },
     "verifyEmail.token": token
   });
