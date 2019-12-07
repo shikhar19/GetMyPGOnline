@@ -16,7 +16,7 @@ sendVerificationLink = async (req, res) => {
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
       await user.save();
-      let message = `Confirmation Link: <a href = "http://localhost:${process.env.PORT}/api/users/verifyEmail/${email}/${token}">Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
+      const message = `Confirmation Link: <a href = 'https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
       let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -149,6 +149,67 @@ module.exports.login = async (req, res) => {
       .header("x-auth-token", token)
       .status(200)
       .json({ success: true, token: token });
+  }
+};
+
+module.exports.verifyEmail = async (req, res) => {
+  let { email, token } = req.params;
+  debugger;
+  let user = await User.findOne({
+    email: email,
+    "verifyEmail.expiresIn": { $gte: Date.now() },
+    "verifyEmail.token": token
+  });
+  if (user) {
+    if (user.isVerified === true) {
+      const token = jwt.sign(
+        {
+          type: "user",
+          data: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            contact: user.contact,
+            role: user.role
+          }
+        },
+        process.env.secret,
+        {
+          expiresIn: 604800 // for 1 week time in milliseconds
+        }
+      );
+      res
+        .header("x-auth-token", token)
+        .status(200)
+        .json({ success: true, message: "Already Verified", token: token });
+    } else {
+      user.isVerified = true;
+      user.verifyEmail.token = undefined;
+      user.verifyEmail.expiresIn = undefined;
+      await user.save();
+      const token = jwt.sign(
+        {
+          type: "user",
+          data: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            contact: user.contact,
+            role: user.role
+          }
+        },
+        process.env.secret,
+        {
+          expiresIn: 604800 // for 1 week time in milliseconds
+        }
+      );
+      res
+        .header("x-auth-token", token)
+        .status(200)
+        .json({ success: true, message: "Email Verified", token: token });
+    }
+  } else {
+    res.status(400).json({ message: "Invalid Request or Link Expired" });
   }
 };
 
