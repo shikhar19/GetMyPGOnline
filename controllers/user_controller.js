@@ -118,10 +118,16 @@ module.exports.login = async (req, res) => {
       .status(401)
       .json({ success: false, message: "Wrong Credentials." });
   } else if (isMatch && user.isVerified == false) {
-    if (user.verifyEmail.expiresIn < Date.now())
+    if (user.verifyEmail.expiresIn >= Date.now()){
       return res
         .status(401)
         .json({ success: false, message: "Verify your EmailID!" });
+    } else {
+      await sendVerificationLink(user.email);
+      return res
+        .status(401)
+        .json({ success: false, message: "Verify your EmailID!" });
+    }
   } else {
     const token = jwt.sign(
       {
