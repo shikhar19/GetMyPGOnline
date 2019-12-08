@@ -17,7 +17,7 @@ sendVerificationLink = async (req, res) => {
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
       await user.save();
-      const message = `Confirmation Link: <a href = 'http://localhost:8000/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
+      const message = `Confirmation Link: <a href = 'http://localhost:${process.env.PORT}/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
       let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -181,7 +181,7 @@ module.exports.verifyEmail = async (req, res) => {
       res
         .header("x-auth-token", token)
         .status(200)
-        .json({ success: true, message: "Already Verified", token: token });
+        .json({ success: true, message: "Already Verified" });
     } else if (
       (user.verifyEmail.expiresIn >= Date.now()) &
       (user.verifyEmail.token === token)
