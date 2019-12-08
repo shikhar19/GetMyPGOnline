@@ -17,7 +17,7 @@ sendVerificationLink = async (req, res) => {
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
       await user.save();
-      const message = `Confirmation Link: <a href = 'http://localhost:${process.env.PORT}/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
+      const message = `Confirmation Link: <a href = 'https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
       let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -263,23 +263,24 @@ module.exports.updateUser = async (req, res) => {
 };
 
 module.exports.deleteUser = async (req, res) => {
+  debugger;
   let user = await User.findById(req.params.id);
   if (user) {
     if (user.role == "admin") {
       res.status(400).json({ message: "Cannot Delete User!" });
     } else {
-      let newEmail = {
-        email
-      };
-      if (await DeletedUsers.findOne({ email: email })) {
-        res.status(400).json({ message: "Already Deleted!" });
-      } else {
-        deletedUser = await DeletedUsers.create(newEmail);
-      }
+      deletedUser = await DeletedUsers.create({
+        deletedID: req.params.id,
+        email: user.email
+      });
       await User.deleteOne({ _id: req.params.id });
       res.status(200).json({ message: "Deleted Successfully!" });
     }
   } else {
-    res.status(400).json({ message: "No such User!" });
+    if (await DeletedUsers.findOne({ deletedID: req.params.id })) {
+      res.status(400).json({ message: "Already Deleted!" });
+    } else {
+      res.status(400).json({ message: "No such User!" });
+    }
   }
 };
