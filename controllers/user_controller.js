@@ -14,6 +14,9 @@ sendVerificationLink = async (req, res) => {
     } else {
       const salt = (await bcrypt.genSalt(10)) + Date.now();
       token = await bcrypt.hash(email, salt);
+      for (var i = 0 in token) {
+        if (token[i] === "/") token[i] = ".";
+      }
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
       await user.save();
@@ -161,6 +164,7 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.verifyEmail = async (req, res) => {
+  debugger;
   let { email, token } = req.params;
   let user = await User.findOne({ email: email });
   if (user) {
