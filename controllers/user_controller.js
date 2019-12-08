@@ -158,7 +158,6 @@ module.exports.login = async (req, res) => {
 
 module.exports.verifyEmail = async (req, res) => {
   let { email, token } = req.params;
-  debugger;
   let user = await User.findOne({ email: email });
   if (user) {
     if (user.isVerified === true) {
@@ -263,7 +262,6 @@ module.exports.updateUser = async (req, res) => {
 };
 
 module.exports.deleteUser = async (req, res) => {
-  debugger;
   let user = await User.findById(req.params.id);
   if (user) {
     if (user.role == "admin") {
