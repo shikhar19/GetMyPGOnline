@@ -70,6 +70,9 @@ module.exports.register = async (req, res) => {
             role,
             contact
           };
+          if (await DeletedUsers.findOne({ email: email })) {
+            res.status(400).json({ message: "Your EmailId is Banned!" });
+          }
           const salt = await bcrypt.genSalt(10);
           newUser.password = await bcrypt.hash(newUser.password, salt);
           user = await User.create(newUser);
@@ -107,6 +110,7 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
+  debugger;
   let { email, password } = req.body;
   let user = await User.findOne({ email });
   if (!user) {
@@ -118,10 +122,11 @@ module.exports.login = async (req, res) => {
       .status(401)
       .json({ success: false, message: "Wrong Credentials." });
   } else if (isMatch && user.isVerified == false) {
-    if (user.verifyEmail.expiresIn < Date.now())
+    if (user.verifyEmail.expiresIn < Date.now()) {
       return res
         .status(401)
         .json({ success: false, message: "Verify your EmailID!" });
+    }
   } else {
     const token = jwt.sign(
       {
@@ -259,6 +264,14 @@ module.exports.deleteUser = async (req, res) => {
     if (user.role == "admin") {
       res.status(400).json({ message: "Cannot Delete User!" });
     } else {
+      let newEmail = {
+        email
+      };
+      if (await DeletedUsers.findOne({ email: email })) {
+        res.status(400).json({ message: "Already Deleted!" });
+      } else {
+        deletedUser = await DeletedUsers.create(newEmail);
+      }
       await User.deleteOne({ _id: req.params.id });
       res.status(200).json({ message: "Deleted Successfully!" });
     }

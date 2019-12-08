@@ -26,6 +26,7 @@ app.get("/", (req, res) => {
 
 const User = require("./models/User");
 const Pg = require("./models/Pg");
+const DeletedUsers = require("./models/DeletedUsers");
 
 app.use("/api/users", require("./routes/user"));
 app.use("/api/pgs", require("./routes/pg"));
