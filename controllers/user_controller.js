@@ -17,7 +17,11 @@ sendVerificationLink = async (req, res) => {
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
       await user.save();
-      const message = `Confirmation Link: <a href = 'https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
+      const message = `Almost done, ${user.name}! To complete your <strong>Get-My-PG-Online</strong> sign up, we just need to verify your email address: ${email}.<br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Verify Your Email Address</a><br>Once verified, you can start using all of Get-My-PG-Online's features to explore, book your PG, and all of this at just one click.
+
+      Button not working? Paste the following link into your browser: https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}
+      
+      You’re receiving this email because you recently created a new GetMyPGOnline account or added a new email address. If this wasn’t you, please ignore this email.<br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!<br><br>Thanks,<br>Team <strong>Get My PG Online</strong>`;
       let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -30,7 +34,7 @@ sendVerificationLink = async (req, res) => {
       });
 
       let mailOptions = {
-        from: `FIND PG ONLINE <${process.env.email}>`,
+        from: `GET MY PG ONLINE <${process.env.email}>`,
         to: email,
         subject: "Please Verify your E-mail Address",
         html: message
