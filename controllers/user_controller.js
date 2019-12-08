@@ -17,7 +17,7 @@ sendVerificationLink = async (req, res) => {
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
       await user.save();
-      const message = `Confirmation Link: <a href = 'https://getmypgonline.herokuapp.com:${process.env.PORT}/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
+      const message = `Confirmation Link: <a href = 'https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
       let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
