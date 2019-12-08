@@ -186,7 +186,7 @@ module.exports.verifyEmail = async (req, res) => {
         .status(200)
         .json({ success: true, message: "Already Verified" });
     } else if (
-      (user.verifyEmail.expiresIn >= Date.now()) &
+      (user.verifyEmail.expiresIn >= Date.now()) &&
       (user.verifyEmail.token === token)
     ) {
       user.isVerified = true;
