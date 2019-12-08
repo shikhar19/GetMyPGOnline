@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const DeletedUsers = require("../models/DeletedUsers");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
@@ -16,7 +17,7 @@ sendVerificationLink = async (req, res) => {
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
       await user.save();
-      const message = `Confirmation Link: <a href = 'https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
+      const message = `Confirmation Link: <a href = 'http://localhost:8000/api/users/verifyEmail/${email}/${token}'>Confirm Here</a><br><strong>Note:</strong> Do not reply to this email.<br><br>Thanks,<br>Team <strong>Find PG Online</strong>`;
       let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -110,7 +111,6 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  debugger;
   let { email, password } = req.body;
   let user = await User.findOne({ email });
   if (!user) {
@@ -122,7 +122,12 @@ module.exports.login = async (req, res) => {
       .status(401)
       .json({ success: false, message: "Wrong Credentials." });
   } else if (isMatch && user.isVerified == false) {
-    if (user.verifyEmail.expiresIn < Date.now()) {
+    if (user.verifyEmail.expiresIn >= Date.now()) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Verify your EmailID!" });
+    } else {
+      await sendVerificationLink(user.email);
       return res
         .status(401)
         .json({ success: false, message: "Verify your EmailID!" });
@@ -154,11 +159,7 @@ module.exports.login = async (req, res) => {
 module.exports.verifyEmail = async (req, res) => {
   let { email, token } = req.params;
   debugger;
-  let user = await User.findOne({
-    email: email,
-    "verifyEmail.expiresIn": { $gte: Date.now() },
-    "verifyEmail.token": token
-  });
+  let user = await User.findOne({ email: email });
   if (user) {
     if (user.isVerified === true) {
       const token = jwt.sign(
@@ -181,7 +182,10 @@ module.exports.verifyEmail = async (req, res) => {
         .header("x-auth-token", token)
         .status(200)
         .json({ success: true, message: "Already Verified", token: token });
-    } else {
+    } else if (
+      (user.verifyEmail.expiresIn >= Date.now()) &
+      (user.verifyEmail.token === token)
+    ) {
       user.isVerified = true;
       user.verifyEmail.token = undefined;
       user.verifyEmail.expiresIn = undefined;
