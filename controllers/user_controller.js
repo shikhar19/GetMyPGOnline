@@ -52,6 +52,41 @@ sendVerificationLink = async (req, res) => {
   }
 };
 
+mailToBannedUsers = async (req, res) => {
+  let email = req;
+  let user = await User.findOne({ email });
+  if (user) {
+    const message = `<div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:20px;font-weight:400!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Almost done, <strong style="color:#24292e!important">${user.name}</strong>!<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br><br>Thanks,<br>Team <strong>Get My PG Online</strong></div>`;
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.email,
+        pass: process.env.password
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+
+    let mailOptions = {
+      from: `GET MY PG ONLINE <${process.env.email}>`,
+      to: email,
+      subject: "Your ID is Banned",
+      html: message
+    };
+
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+        return 0;
+      }
+      console.log("Message sent: %s", info.messageId);
+    });
+  } else {
+    return res.status(400).json({ success: false, message: "User not found!" });
+  }
+};
+
 module.exports.register = async (req, res) => {
   let { name, email, contact, password, role } = req.body;
   if (!name || !email || !contact || !password || !role) {
@@ -270,10 +305,22 @@ module.exports.deleteUser = async (req, res) => {
     if (user.role == "admin") {
       res.status(400).json({ message: "Cannot Delete User!" });
     } else {
+      debugger;
       deletedUser = await DeletedUsers.create({
-        deletedID: req.params.id,
-        email: user.email
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        password: user.password,
+        isVerified: user.isVerified,
+        verifyEmail: {
+          token: user.verifyEmail.token,
+          expiresIn: user.verifyEmail.expiresIn
+        },
+        contact: user.contact,
+        role: user.role
       });
+      debugger;
+      await mailToBannedUsers(deletedUser.email);
       await User.deleteOne({ _id: req.params.id });
       res.status(200).json({ message: "Deleted Successfully!" });
     }
