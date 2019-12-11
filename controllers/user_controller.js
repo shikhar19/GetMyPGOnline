@@ -247,9 +247,12 @@ module.exports.verifyEmail = async (req, res) => {
         .header("x-auth-token", token)
         .status(200)
         .json({ success: true, message: "Email Verified", token: token });
+    } else {
+      await sendVerificationLink(user.email);
+      res.status(400).json({ message: "Invalid Request or Link Expired!" });
     }
   } else {
-    res.status(400).json({ message: "Invalid Request or Link Expired" });
+    res.status(400).json({ message: "No User Found" });
   }
 };
 
@@ -305,20 +308,18 @@ module.exports.deleteUser = async (req, res) => {
     if (user.role == "admin") {
       res.status(400).json({ message: "Cannot Delete User!" });
     } else {
-      debugger;
       deletedUser = await DeletedUsers.create({
         _id: user.id,
         name: user.name,
         email: user.email,
         password: user.password,
         isVerified: user.isVerified,
-        verifyEmail: {
-          token: user.verifyEmail.token,
-          expiresIn: user.verifyEmail.expiresIn
-        },
         contact: user.contact,
         role: user.role
       });
+      deletedUser.verifyEmail.token = undefined;
+      deletedUser.verifyEmail.expiresIn = undefined;
+      deletedUser.save();
       debugger;
       await mailToBannedUsers(deletedUser.email);
       await User.deleteOne({ _id: req.params.id });
@@ -330,5 +331,34 @@ module.exports.deleteUser = async (req, res) => {
     } else {
       res.status(400).json({ message: "No such User!" });
     }
+  }
+};
+
+module.exports.removeUserBan = async (req, res) => {
+  let user = await DeletedUsers.findById(req.params.id);
+  if (user) {
+    debugger;
+    userAdded = await User.create({
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      isVerified: user.isVerified,
+      contact: user.contact,
+      role: user.role
+    });
+    if (userAdded.isVerified === false) {
+      let token = Date.now() + user._id + Math.random(10000000000);
+      userAdded.verifyEmail.token = token;
+      userAdded.verifyEmail.expiresIn = Date.now() + 3600000;
+      await userAdded.save();
+      await sendVerificationLink(userAdded.email);
+    } else {
+      await mailToBannedUsers(userAdded.email);
+    }
+    await DeletedUsers.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: "Ban Removed Successfully!" });
+  } else {
+    res.status(400).json({ message: "No such User!" });
   }
 };
