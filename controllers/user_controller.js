@@ -307,7 +307,6 @@ module.exports.register = async (req, res) => {
         if (user) {
           return res.status(400).json({ message: "User already registered!" });
         } else {
-          debugger;
           let newUser = {
             name,
             email,
@@ -509,7 +508,6 @@ module.exports.updateUser = async (req, res) => {
 };
 
 module.exports.deleteUser = async (req, res) => {
-  debugger;
   let user = await User.findById(req.params.id);
   if (user) {
     if (user.role == "admin") {
@@ -541,7 +539,6 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 module.exports.removeUserBan = async (req, res) => {
-  debugger;
   let user = await DeletedUsers.findById(req.params.id);
   let requestedUser = await RequestBanRemovalUsers.findById(req.params.id);
   if (user) {
@@ -575,7 +572,6 @@ module.exports.removeUserBan = async (req, res) => {
 };
 
 module.exports.requestRemoveBan = async (req, res) => {
-  debugger;
   let user = await DeletedUsers.findOne({ email: req.params.email });
   let requestedUser = await RequestBanRemovalUsers.findOne({
     email: req.params.email
