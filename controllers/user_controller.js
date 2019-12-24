@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const DeletedUsers = require("../models/DeletedUsers");
+const RequestBanRemovalUsers = require("../models/RequestBanRemovalUsers");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
@@ -63,9 +64,9 @@ mailToBannedUsers = async (req, res) => {
   let user = await User.findOne({ email });
   if (user) {
     const message = `<center style="min-width:580px;width:100%">
-    <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">You are Banned <strong style="color:#24292e!important">${user.name}</strong>! To talk to our admin at <strong>Get-My-PG-Online</strong> and to request them to remove the ban from your email address: <strong style="color:#24292e!important">${email}</strong> then click the button below.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='http://localhost:${process.env.PORT}/api/users/contactus'>Contact Us</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">You are banned from using all of Get-My-PG-Online's features. This may be due to someone creating fake ID using your Email or you don't want to continue using our services!</p>
+    <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">You are Banned <strong style="color:#24292e!important">${user.name}</strong>! To talk to our admin at <strong>Get-My-PG-Online</strong> and to request them to remove the ban from your email address: <strong style="color:#24292e!important">${email}</strong> then click the button below.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='http://localhost:${process.env.PORT}/api/users/requestremoveban/${email}'>Contact Us</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">You are banned from using all of Get-My-PG-Online's features. This may be due to someone creating fake ID using your Email or you don't want to continue using our services!</p>
     <br>
-      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: http://localhost:${process.env.PORT}/api/users/contactus. You’re receiving this email because your email ID was registered with us and you have been banned.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br>Thanks,<br>Team <strong>Get My PG Online</strong></div>`;
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: http://localhost:${process.env.PORT}/api/users/requestremoveban/${email}. You’re receiving this email because your email ID was registered with us and you have been banned.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br>Thanks,<br>Team <strong>Get My PG Online</strong></div>`;
     let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -374,5 +375,28 @@ module.exports.removeUserBan = async (req, res) => {
     res.status(200).json({ message: "Ban Removed Successfully!" });
   } else {
     res.status(400).json({ message: "No such User!" });
+  }
+};
+
+module.exports.requestRemoveBan = async (req, res) => {
+  let user = await DeletedUsers.findOne({ email: req.params.email });
+  let requestedUser = await RequestBanRemovalUsers.findOne({
+    email: req.params.email
+  });
+  let { reason } = req.body;
+  if (user && !requestedUser) {
+    userAdded = await RequestBanRemovalUsers.create({
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      contact: user.contact,
+      role: user.role,
+      reason: reason
+    });
+    res.status(200).json({ message: "Requested Successfully!" });
+  } else if (requestedUser) {
+    res.status(200).json({ message: "Your Request is Already in Process!" });
+  } else {
+    res.status(400).json({ message: "You can't request!" });
   }
 };

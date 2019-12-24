@@ -10,7 +10,8 @@ let {
   profile,
   deleteUser,
   updateUser,
-  removeUserBan
+  removeUserBan,
+  requestRemoveBan
 } = require("../controllers/user_controller");
 
 router.post("/register", register);
@@ -20,6 +21,6 @@ router.get("/profile", allAuth, profile);
 router.post("/update", allAuth, updateUser); //krna h check
 router.get("/delete/:id", someAuth, deleteUser);
 router.get("/removeban/:id", adminAuth, removeUserBan);
-router.post("/contactus", adminAuth, deleteUser);
+router.post("/requestremoveban/:email", requestRemoveBan);
 
 module.exports = router;
