@@ -554,10 +554,6 @@ module.exports.removeUserBan = async (req, res) => {
       role: user.role
     });
     if (userAdded.isVerified === false) {
-      let token = Date.now() + user._id + Math.random(10000000000);
-      userAdded.verifyEmail.token = token;
-      userAdded.verifyEmail.expiresIn = Date.now() + 3600000;
-      await userAdded.save();
       if (requestedUser) await sendRemoveBanOnRequest(userAdded.email);
       else await sendRemoveBanByAdmin(userAdded.email);
     } else {
