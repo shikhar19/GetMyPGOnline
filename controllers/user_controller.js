@@ -16,6 +16,7 @@ sendVerificationLink = async (req, res) => {
       let token = Date.now() + user._id + Math.random(10000000000);
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
+      await user.save();
       const message = `<center style="min-width:580px;width:100%">
       <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Almost done, <strong style="color:#24292e!important">${user.name}</strong>! To complete your <strong>Get-My-PG-Online</strong> sign up, we just need to verify your email address: <strong style="color:#24292e!important">${email}</strong>.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Verify Your Email Address</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Once verified, you can start using all of Get-My-PG-Online's features to explore, book your PG, and all of this at just one click.</p>
       <br>
@@ -54,7 +55,6 @@ sendVerificationLink = async (req, res) => {
         }
         console.log("Message sent: %s", info.messageId);
       });
-      await user.save();
     }
   } else {
     return res.status(400).json({ success: false, message: "User not found!" });
@@ -113,6 +113,7 @@ sendRemoveBanOnRequest = async (req, res) => {
     let token = Date.now() + user._id + Math.random(10000000000);
     user.verifyEmail.token = token;
     user.verifyEmail.expiresIn = Date.now() + 3600000;
+    await user.save();
     const message = `<center style="min-width:580px;width:100%">
     <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Hey <strong style="color:#24292e!important">${user.name}</strong>! Your Ban is removed <strong>Get-My-PG-Online</strong> and we are sending this email to verify your email address: <strong style="color:#24292e!important">${email}</strong>. Click the button below to verify yourself.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Verify Your Email Address</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Once verified, you can start using all of Get-My-PG-Online's features to explore, book your PG, and all of this at just one click.</p>
     <br>
@@ -149,7 +150,6 @@ sendRemoveBanOnRequest = async (req, res) => {
       }
       console.log("Message sent: %s", info.messageId);
     });
-    await user.save();
   } else {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
@@ -162,6 +162,7 @@ sendRemoveBanByAdmin = async (req, res) => {
     let token = Date.now() + user._id + Math.random(10000000000);
     user.verifyEmail.token = token;
     user.verifyEmail.expiresIn = Date.now() + 3600000;
+    await user.save();
     const message = `<center style="min-width:580px;width:100%">
     <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Hey <strong style="color:#24292e!important">${user.name}</strong>! Your Ban is removed <strong>Get-My-PG-Online</strong> and we are sending this email to verify your email address: <strong style="color:#24292e!important">${email}</strong>. Click the button below to verify yourself.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Verify Your Email Address</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Once verified, you can start using all of Get-My-PG-Online's features to explore, book your PG, and all of this at just one click.</p>
     <br>
@@ -198,7 +199,6 @@ sendRemoveBanByAdmin = async (req, res) => {
       }
       console.log("Message sent: %s", info.messageId);
     });
-    await user.save();
   } else {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
