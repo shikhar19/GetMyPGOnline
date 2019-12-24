@@ -64,7 +64,12 @@ module.exports.someAuth = (req, res, next) => {
   } else {
     const decodedPayload = jwt.verify(token, process.env.secret);
     req.user = decodedPayload;
-    if (req.user.data.role === "admin" || req.user.data.role === "owner") {
+    if (req.user.data.role === "admin") {
+      return next();
+    } else if (
+      (req.user.data.role === "owner" && req.params.id === req.user.data._id) ||
+      (req.user.data.role === "tenant" && req.params.id === req.user.data._id)
+    ) {
       return next();
     } else {
       return res.status(401).json({ message: "Access denied!" });

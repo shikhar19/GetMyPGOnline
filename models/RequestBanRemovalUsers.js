@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
-const DeletedUsersSchema = mongoose.Schema({
+const RequestBanRemovalUsersSchema = mongoose.Schema({
   name: {
     type: String,
     required: true
@@ -12,30 +12,6 @@ const DeletedUsersSchema = mongoose.Schema({
     index: true,
     required: true
   },
-  password: {
-    type: String,
-    required: true
-  },
-  resetPwd: {
-    token: {
-      type: String
-    },
-    expiresIn: {
-      type: Date
-    }
-  },
-  isVerified: {
-    type: Boolean,
-    default: false
-  },
-  verifyEmail: {
-    token: {
-      type: String
-    },
-    expiresIn: {
-      type: Date
-    }
-  },
   contact: {
     type: String,
     required: true
@@ -43,12 +19,16 @@ const DeletedUsersSchema = mongoose.Schema({
   role: {
     type: String,
     required: true
+  },
+  reason: {
+    type: String,
+    required: true
   }
 });
 
-DeletedUsersSchema.plugin(uniqueValidator);
+RequestBanRemovalUsersSchema.plugin(uniqueValidator);
 
 const DeletedUsers = (module.exports = mongoose.model(
-  "DeletedUsers",
-  DeletedUsersSchema
+  "RequestBanRemovalUsers",
+  RequestBanRemovalUsersSchema
 ));

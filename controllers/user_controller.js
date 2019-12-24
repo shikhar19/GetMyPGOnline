@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const DeletedUsers = require("../models/DeletedUsers");
+const RequestBanRemovalUsers = require("../models/RequestBanRemovalUsers");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
@@ -12,16 +13,15 @@ sendVerificationLink = async (req, res) => {
     if (user.isVerified === true) {
       return res.status(400).json({ message: "Already Verified!" });
     } else {
-      const salt = (await bcrypt.genSalt(10)) + Date.now();
-      token = await bcrypt.hash(email, salt);
+      let token = Date.now() + user._id + Math.random(10000000000);
       user.verifyEmail.token = token;
       user.verifyEmail.expiresIn = Date.now() + 3600000;
-      await user.save();
-      const message = `<div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:20px;font-weight:400!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Almost done, <strong style="color:#24292e!important">${user.name}</strong>! To complete your <strong>Get-My-PG-Online</strong> sign up, we just need to verify your email address: <strong style="color:#24292e!important">${email}</strong>.<br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Verify Your Email Address</a><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:20px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Once verified, you can start using all of Get-My-PG-Online's features to explore, book your PG, and all of this at just one click.</p>
-      <br><br>
-      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:18px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}</p>
-      <br><br>
-      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">You’re receiving this email because you recently created a new Get-My-PG-Online account or added a new email address. If this wasn’t you, please ignore this email.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br><br>Thanks,<br>Team <strong>Get My PG Online</strong></div>`;
+      const message = `<center style="min-width:580px;width:100%">
+      <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Almost done, <strong style="color:#24292e!important">${user.name}</strong>! To complete your <strong>Get-My-PG-Online</strong> sign up, we just need to verify your email address: <strong style="color:#24292e!important">${email}</strong>.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}'>Verify Your Email Address</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Once verified, you can start using all of Get-My-PG-Online's features to explore, book your PG, and all of this at just one click.</p>
+      <br>
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: https://getmypgonline.herokuapp.com/api/users/verifyEmail/${email}/${token}</p>
+      <br>
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">You’re receiving this email because you recently created a new Get-My-PG-Online account or added a new email address. If this wasn’t you, please ignore this email.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br>Thanks,<br>Team <strong>Get My PG Online</strong></div>`;
       let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -32,14 +32,19 @@ sendVerificationLink = async (req, res) => {
           rejectUnauthorized: false
         }
       });
-
       let mailOptions = {
         from: `GET MY PG ONLINE <${process.env.email}>`,
         to: email,
         subject: "Please Verify your E-mail Address",
-        html: message
+        html: message,
+        attachments: [
+          {
+            filename: "GetMyPG-Online.JPG",
+            path: __dirname + "/assets/GetMyPG-Online.JPG",
+            cid: "unique"
+          }
+        ]
       };
-
       await transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log(error);
@@ -47,7 +52,53 @@ sendVerificationLink = async (req, res) => {
         }
         console.log("Message sent: %s", info.messageId);
       });
+      await user.save();
     }
+  } else {
+    return res.status(400).json({ success: false, message: "User not found!" });
+  }
+};
+
+mailToBannedUsers = async (req, res) => {
+  let email = req;
+  let user = await User.findOne({ email });
+  if (user) {
+    const message = `<center style="min-width:580px;width:100%">
+    <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">You are Banned <strong style="color:#24292e!important">${user.name}</strong>! To talk to our admin at <strong>Get-My-PG-Online</strong> and to request them to remove the ban from your email address: <strong style="color:#24292e!important">${email}</strong> then click the button below.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/requestremoveban/${email}'>Contact Us</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">You are banned from using all of Get-My-PG-Online's features. This may be due to someone creating fake ID using your Email or you don't want to continue using our services!</p>
+    <br>
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: https://getmypgonline.herokuapp.com/api/users/requestremoveban/${email}. You’re receiving this email because your email ID was registered with us and you have been banned.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br>Thanks,<br>Team <strong>Get My PG Online</strong></div>`;
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.email,
+        pass: process.env.password
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+
+    let mailOptions = {
+      from: `GET MY PG ONLINE <${process.env.email}>`,
+      to: email,
+      subject: "You are Banned from our Services!",
+      html: message,
+      attachments: [
+        {
+          filename: "GetMyPG-Online.JPG",
+          path: __dirname + "/assets/GetMyPG-Online.JPG",
+          cid: "unique"
+        }
+      ]
+    };
+
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+        return 0;
+      }
+      console.log("Message sent: %s", info.messageId);
+    });
   } else {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
@@ -186,8 +237,8 @@ module.exports.verifyEmail = async (req, res) => {
         .status(200)
         .json({ success: true, message: "Already Verified" });
     } else if (
-      (user.verifyEmail.expiresIn >= Date.now()) &
-      (user.verifyEmail.token === token)
+      user.verifyEmail.expiresIn >= Date.now() &&
+      user.verifyEmail.token === token
     ) {
       user.isVerified = true;
       user.verifyEmail.token = undefined;
@@ -213,9 +264,12 @@ module.exports.verifyEmail = async (req, res) => {
         .header("x-auth-token", token)
         .status(200)
         .json({ success: true, message: "Email Verified", token: token });
+    } else {
+      await sendVerificationLink(user.email);
+      res.status(400).json({ message: "Invalid Request or Link Expired!" });
     }
   } else {
-    res.status(400).json({ message: "Invalid Request or Link Expired" });
+    res.status(400).json({ message: "No User Found" });
   }
 };
 
@@ -272,9 +326,18 @@ module.exports.deleteUser = async (req, res) => {
       res.status(400).json({ message: "Cannot Delete User!" });
     } else {
       deletedUser = await DeletedUsers.create({
-        deletedID: req.params.id,
-        email: user.email
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        password: user.password,
+        isVerified: user.isVerified,
+        contact: user.contact,
+        role: user.role
       });
+      deletedUser.verifyEmail.token = undefined;
+      deletedUser.verifyEmail.expiresIn = undefined;
+      deletedUser.save();
+      await mailToBannedUsers(deletedUser.email);
       await User.deleteOne({ _id: req.params.id });
       res.status(200).json({ message: "Deleted Successfully!" });
     }
@@ -284,5 +347,56 @@ module.exports.deleteUser = async (req, res) => {
     } else {
       res.status(400).json({ message: "No such User!" });
     }
+  }
+};
+
+module.exports.removeUserBan = async (req, res) => {
+  let user = await DeletedUsers.findById(req.params.id);
+  if (user) {
+    userAdded = await User.create({
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      isVerified: user.isVerified,
+      contact: user.contact,
+      role: user.role
+    });
+    if (userAdded.isVerified === false) {
+      let token = Date.now() + user._id + Math.random(10000000000);
+      userAdded.verifyEmail.token = token;
+      userAdded.verifyEmail.expiresIn = Date.now() + 3600000;
+      await userAdded.save();
+      await sendVerificationLink(userAdded.email);
+    } else {
+      await mailToBannedUsers(userAdded.email);
+    }
+    await DeletedUsers.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: "Ban Removed Successfully!" });
+  } else {
+    res.status(400).json({ message: "No such User!" });
+  }
+};
+
+module.exports.requestRemoveBan = async (req, res) => {
+  let user = await DeletedUsers.findOne({ email: req.params.email });
+  let requestedUser = await RequestBanRemovalUsers.findOne({
+    email: req.params.email
+  });
+  let { reason } = req.body;
+  if (user && !requestedUser) {
+    userAdded = await RequestBanRemovalUsers.create({
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      contact: user.contact,
+      role: user.role,
+      reason: reason
+    });
+    res.status(200).json({ message: "Requested Successfully!" });
+  } else if (requestedUser) {
+    res.status(200).json({ message: "Your Request is Already in Process!" });
+  } else {
+    res.status(400).json({ message: "You can't request!" });
   }
 };
