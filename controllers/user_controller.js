@@ -7,6 +7,7 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 sendVerificationLink = async (req, res) => {
+  debugger;
   let email = req;
   let user = await User.findOne({ email });
   if (user) {
