@@ -366,7 +366,7 @@ module.exports.login = async (req, res) => {
   if (!isMatch) {
     return res
       .status(401)
-      .json({ success: false, message: "Wrong Credentials." });
+      .json({ success: false, message: "Wrong Credentials!" });
   } else if (isMatch && user.isVerified == false) {
     if (user.verifyEmail.expiresIn >= Date.now()) {
       return res
