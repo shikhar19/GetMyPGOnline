@@ -24,7 +24,7 @@ const DeletedUsersSchema = mongoose.Schema({
       type: Date
     }
   },
-  isVerified: {
+  isEmailVerified: {
     type: Boolean,
     default: false
   },

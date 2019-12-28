@@ -26,7 +26,7 @@ const UserSchema = mongoose.Schema({
       type: Date
     }
   },
-  isVerified: {
+  isEmailVerified: {
     type: Boolean,
     default: false
   },
@@ -41,6 +41,13 @@ const UserSchema = mongoose.Schema({
   contact: {
     type: String,
     required: true
+  },
+  isContactVerified: {
+    type: Boolean,
+    default: false
+  },
+  otpExpiresIn: {
+    type: Date
   },
   role: {
     type: String,
