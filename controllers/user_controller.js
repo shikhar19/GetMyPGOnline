@@ -715,6 +715,79 @@ module.exports.verifyContact = async (req, res) => {
   }
 };
 
+module.exports.retryContactVerification = async (req, res) => {
+  let { contact } = req.params;
+  let user = await User.findOne({ contact: contact });
+  if (user) {
+    if (user.isContactVerified === true && user.isEmailVerified === true) {
+      const token = jwt.sign(
+        {
+          type: "user",
+          data: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            contact: user.contact,
+            role: user.role
+          }
+        },
+        process.env.secret,
+        {
+          expiresIn: 604800 // for 1 week time in milliseconds
+        }
+      );
+      res
+        .header("x-auth-token", token)
+        .status(200)
+        .json({
+          success: true,
+          message: "Already Verified!",
+          token: token
+        });
+    } else if (user.isContactVerified === true) {
+      if (user.verifyEmail.expiresIn >= Date.now())
+        res.status(200).json({
+          success: true,
+          message: "Contact Already Verified! Need to verify Email Id."
+        });
+      else {
+        sendVerificationLink(user.email);
+        res.status(200).json({
+          success: true,
+          message: "Contact Already Verified! Need to verify Email Id now."
+        });
+      }
+    } else {
+      // if (user.otpExpiresIn < Date.now()) {
+      debugger;
+      await sendOtp.retry(user.contact, false, (error, data) => {
+        console.log(data);
+      });
+      //}
+      if (user.isEmailVerified === false) {
+        if (user.verifyEmail.expiresIn >= Date.now())
+          res.status(200).json({
+            success: true,
+            message: "Called! Need to verify Email Id."
+          });
+        else {
+          sendVerificationLink(user.email);
+          res.status(200).json({
+            success: true,
+            message: "Called! Need to verify Email Id now."
+          });
+        }
+      } else {
+        res.status(200).json({
+          success: true,
+          message: "Otp Send via call."
+        });
+      }
+    }
+  } else {
+  }
+};
+
 module.exports.profile = async (req, res) => {
   let user = await User.findById(req.user.data._id);
   id = user._id;
