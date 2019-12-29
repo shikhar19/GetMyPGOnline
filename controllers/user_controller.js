@@ -608,7 +608,7 @@ module.exports.verifyContact = async (req, res) => {
   let { otp } = req.body;
   let user = await User.findOne({ contact: contact });
   if (user) {
-    if (user.isContactVerified === true) {
+    if (user.isContactVerified === true && user.isEmailVerified === true) {
       const token = jwt.sign(
         {
           type: "user",
@@ -628,12 +628,31 @@ module.exports.verifyContact = async (req, res) => {
       res
         .header("x-auth-token", token)
         .status(200)
-        .json({ success: true, message: "Already Verified" });
+        .json({ success: true, message: "Already Verified!" });
+    } else if (
+      user.isContactVerified === true &&
+      user.isEmailVerified === false
+    ) {
+      if (user.verifyEmail.expiresIn >= Date.now())
+        res.status(200).json({
+          success: true,
+          message: "Already Verified! Verify your email Id."
+        });
+      else {
+        await sendVerificationLink(user.email);
+        res.status(200).json({
+          success: true,
+          message: "Already Verified! Verify your email Id now."
+        });
+      }
     } else {
       await sendOtp.verify(contact, otp, async (error, data) => {
         console.log(data);
         if (data.type == "success") {
-          if (user.otpExpiresIn >= Date.now()) {
+          if (
+            user.otpExpiresIn >= Date.now() &&
+            user.isEmailVerified === true
+          ) {
             user.isContactVerified = true;
             user.otpExpiresIn = undefined;
             await user.save();
@@ -661,14 +680,34 @@ module.exports.verifyContact = async (req, res) => {
                 message: "Contact Verified",
                 token: token
               });
+          } else if (
+            user.otpExpiresIn >= Date.now() &&
+            user.isEmailVerified === false
+          ) {
+            user.isContactVerified = true;
+            user.otpExpiresIn = undefined;
+            await user.save();
+            if (user.verifyEmail.expiresIn >= Date.now()) {
+              res.status(200).json({
+                success: true,
+                message: "Contact Verified. Need to verify your Email!"
+              });
+            } else {
+              await sendVerificationLink(user.email);
+              res.status(200).json({
+                success: true,
+                message: "Contact Verified. Need to verify your Email now!"
+              });
+            }
           }
         }
         if (data.type == "error") {
-          await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
-            user.otpExpiresIn = Date.now() + 600000;
-            user.save();
-            sendOtp.setOtpExpiry("10"); //in minutes
-          });
+          if (user.otpExpiresIn < Date.now())
+            await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+              user.otpExpiresIn = Date.now() + 600000;
+              user.save();
+              sendOtp.setOtpExpiry("10"); //in minutes
+            });
           res.status(400).json({ message: "Invalid Request or Link Expired!" });
         }
       });
