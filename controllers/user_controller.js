@@ -386,7 +386,6 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  debugger;
   let { emailormobile, password } = req.body;
   let user =
     (await User.findOne({ email: emailormobile })) ||
@@ -603,7 +602,6 @@ module.exports.verifyEmail = async (req, res) => {
 };
 
 module.exports.verifyContact = async (req, res) => {
-  debugger;
   let { contact } = req.params;
   let { otp } = req.body;
   let user = await User.findOne({ contact: contact });
@@ -793,7 +791,6 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 module.exports.removeUserBan = async (req, res) => {
-  debugger;
   let user = await DeletedUsers.findById(req.params.id);
   let requestedUser = await RequestBanRemovalUsers.findById(req.params.id);
   if (user) {
