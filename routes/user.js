@@ -12,6 +12,7 @@ let {
   register,
   login,
   verifyEmail,
+  verifyContact,
   profile,
   deleteUser,
   updateUser,
@@ -22,6 +23,7 @@ let {
 router.post("/register", register);
 router.post("/login", login);
 router.get("/verifyEmail/:email/:token", verifyEmail);
+router.post("/verifyMobile/:contact", verifyContact);
 router.get("/profile", allAuth, profile);
 router.post("/update", allAuth, updateUser);
 router.get("/delete/:id", restrictedAuth, deleteUser);

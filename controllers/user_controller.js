@@ -336,7 +336,6 @@ module.exports.register = async (req, res) => {
         }
         try {
           await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
-            console.log(data);
             if (data.type === "error") temp1 = 0;
             else {
               user.otpExpiresIn = Date.now() + 600000;
@@ -420,7 +419,6 @@ module.exports.login = async (req, res) => {
       });
     } else if (user.otpExpiresIn < Date.now()) {
       await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
-        console.log(data);
         user.otpExpiresIn = Date.now() + 600000;
         user.save();
         sendOtp.setOtpExpiry("10"); //in minutes
@@ -432,7 +430,6 @@ module.exports.login = async (req, res) => {
     } else {
       await sendVerificationLink(user.email);
       await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
-        console.log(data);
         user.otpExpiresIn = Date.now() + 600000;
         user.save();
         sendOtp.setOtpExpiry("10"); //in minutes
@@ -449,7 +446,6 @@ module.exports.login = async (req, res) => {
         .json({ success: false, message: "Verify your Mobile No.!" });
     } else {
       await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
-        console.log(data);
         user.otpExpiresIn = Date.now() + 600000;
         user.save();
         sendOtp.setOtpExpiry("10"); //in minutes
@@ -555,6 +551,79 @@ module.exports.verifyEmail = async (req, res) => {
   }
 };
 
+module.exports.verifyContact = async (req, res) => {
+  debugger;
+  let { contact } = req.params;
+  let { otp } = req.body;
+  let user = await User.findOne({ contact: contact });
+  if (user) {
+    if (user.isContactVerified === true) {
+      const token = jwt.sign(
+        {
+          type: "user",
+          data: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            contact: user.contact,
+            role: user.role
+          }
+        },
+        process.env.secret,
+        {
+          expiresIn: 604800 // for 1 week time in milliseconds
+        }
+      );
+      res
+        .header("x-auth-token", token)
+        .status(200)
+        .json({ success: true, message: "Already Verified" });
+    } else {
+      temp = "";
+      sendOtp.verify(contact, otp, (error, data) => {
+        console.log(data);
+        if (data.type == "success") temp += data.type;
+        if (data.type == "error") temp += data.type;
+      });
+      debugger;
+      if (user.otpExpiresIn >= Date.now() && temp === "success") {
+        user.isContactVerified = true;
+        user.otpExpiresIn = undefined;
+        await user.save();
+        const token = jwt.sign(
+          {
+            type: "user",
+            data: {
+              _id: user._id,
+              name: user.name,
+              email: user.email,
+              contact: user.contact,
+              role: user.role
+            }
+          },
+          process.env.secret,
+          {
+            expiresIn: 604800 // for 1 week time in milliseconds
+          }
+        );
+        res
+          .header("x-auth-token", token)
+          .status(200)
+          .json({ success: true, message: "Contact Verified", token: token });
+      } else {
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(400).json({ message: "Invalid Request or Link Expired!" });
+      }
+    }
+  } else {
+    res.status(400).json({ message: "No User Found" });
+  }
+};
+
 module.exports.profile = async (req, res) => {
   let user = await User.findById(req.user.data._id);
   id = user._id;
@@ -648,7 +717,6 @@ module.exports.removeUserBan = async (req, res) => {
       userAdded.isContactVerified === false
     ) {
       await sendOtp.send(userAdded.contact, "GetMyPGOnline", (err, data) => {
-        console.log(data);
         if (data.type === "error") temp1 = 0;
         else {
           userAdded.otpExpiresIn = Date.now() + 600000;
@@ -660,7 +728,6 @@ module.exports.removeUserBan = async (req, res) => {
       else await sendRemoveBanByAdmin(userAdded.email);
     } else if (userAdded.isContactVerified === false) {
       await sendOtp.send(userAdded.contact, "GetMyPGOnline", (err, data) => {
-        console.log(data);
         if (data.type === "error") temp1 = 0;
         else {
           userAdded.otpExpiresIn = Date.now() + 600000;
