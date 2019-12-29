@@ -28,13 +28,9 @@ const DeletedUsersSchema = mongoose.Schema({
     type: Boolean,
     default: false
   },
-  verifyEmail: {
-    token: {
-      type: String
-    },
-    expiresIn: {
-      type: Date
-    }
+  isContactVerified: {
+    type: Boolean,
+    default: false
   },
   contact: {
     type: String,

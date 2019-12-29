@@ -6,13 +6,12 @@ const RequestBanRemovalUsers = require("../models/RequestBanRemovalUsers");
 const nodemailer = require("nodemailer");
 const SendOtp = require("sendotp");
 const messageTemplate =
-  "Your One Time Password is: {{otp}}. This Code is valid only for 10 Minutes. Do not give this code to anyone, even if they say they are from GetMyPGOnline! \n\nThis code can be used to log in to your GetMyPGOnline account. We never ask it for anything else. \n\nIf you didn't request this code, simply ignore this message. Thank You!\n\nThanks,\nTeam Get My PG Online";
+  "Your One Time Password is: {{otp}}. This Code is valid only for 10 Minutes. Do not give this code to anyone, even if they say they are from GetMyPGOnline! \n\nIf you didn't request this code, simply ignore this message. Thank You!\n\nThanks,\nTeam Get My PG Online";
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, messageTemplate);
 
 require("dotenv").config();
 
 sendVerificationLink = async (req, res) => {
-  debugger;
   let email = req;
   let user = await User.findOne({ email });
   if (user) {
@@ -336,7 +335,6 @@ module.exports.register = async (req, res) => {
           console.log(err);
         }
         try {
-          debugger;
           await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
             console.log(data);
             if (data.type === "error") temp1 = 0;
@@ -370,7 +368,8 @@ module.exports.register = async (req, res) => {
         } else {
           res.status(200).json({
             success: true,
-            message: "Registeration Successful! Verify Your Email Address!"
+            message:
+              "Registeration Successful! Verify Your Email Address & Mobile Number!"
           });
         }
       }
@@ -388,8 +387,10 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  let { email, password } = req.body;
-  let user = await User.findOne({ email });
+  let { emailormobile, password } = req.body;
+  let user =
+    (await User.findOne({ email: emailormobile })) ||
+    (await User.findOne({ contact: emailormobile }));
   if (!user) {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
@@ -398,7 +399,66 @@ module.exports.login = async (req, res) => {
     return res
       .status(401)
       .json({ success: false, message: "Wrong Credentials!" });
-  } else if (isMatch && user.isEmailVerified == false) {
+  } else if (
+    isMatch &&
+    user.isEmailVerified === false &&
+    user.isContactVerified === false
+  ) {
+    if (
+      user.verifyEmail.expiresIn >= Date.now() &&
+      user.otpExpiresIn >= Date.now()
+    ) {
+      return res.status(401).json({
+        success: false,
+        message: "Verify your EmailID & your Mobile Number!"
+      });
+    } else if (user.verifyEmail.expiresIn < Date.now()) {
+      await sendVerificationLink(user.email);
+      return res.status(401).json({
+        success: false,
+        message: "Verify your EmailID Now!"
+      });
+    } else if (user.otpExpiresIn < Date.now()) {
+      await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+        console.log(data);
+        user.otpExpiresIn = Date.now() + 600000;
+        user.save();
+        sendOtp.setOtpExpiry("10"); //in minutes
+      });
+      return res.status(401).json({
+        success: false,
+        message: "Verify your Mobile No. Now!"
+      });
+    } else {
+      await sendVerificationLink(user.email);
+      await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+        console.log(data);
+        user.otpExpiresIn = Date.now() + 600000;
+        user.save();
+        sendOtp.setOtpExpiry("10"); //in minutes
+      });
+      return res.status(401).json({
+        success: false,
+        message: "Verify your EmailID & your Mobile Number now!"
+      });
+    }
+  } else if (isMatch && user.isContactVerified === false) {
+    if (user.otpExpiresIn >= Date.now()) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Verify your Mobile No.!" });
+    } else {
+      await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+        console.log(data);
+        user.otpExpiresIn = Date.now() + 600000;
+        user.save();
+        sendOtp.setOtpExpiry("10"); //in minutes
+      });
+      return res
+        .status(401)
+        .json({ success: false, message: "Verify your Mobile No. now!" });
+    }
+  } else if (isMatch && user.isEmailVerified === false) {
     if (user.verifyEmail.expiresIn >= Date.now()) {
       return res
         .status(401)
@@ -407,7 +467,7 @@ module.exports.login = async (req, res) => {
       await sendVerificationLink(user.email);
       return res
         .status(401)
-        .json({ success: false, message: "Verify your EmailID!" });
+        .json({ success: false, message: "Verify your EmailID now!" });
     }
   } else {
     const token = jwt.sign(
@@ -501,7 +561,6 @@ module.exports.profile = async (req, res) => {
   isEmailVerified = user.isEmailVerified;
   name = user.name;
   email = user.email;
-  password = user.password; //removed before publishing
   contact = user.contact;
   role = user.role;
   return res.status(200).json({
@@ -553,11 +612,10 @@ module.exports.deleteUser = async (req, res) => {
         email: user.email,
         password: user.password,
         isEmailVerified: user.isEmailVerified,
+        isContactVerified: user.isContactVerified,
         contact: user.contact,
         role: user.role
       });
-      deletedUser.verifyEmail.token = undefined;
-      deletedUser.verifyEmail.expiresIn = undefined;
       deletedUser.save();
       await mailToBannedUsers(deletedUser.email);
       await User.deleteOne({ _id: req.params.id });
@@ -585,7 +643,34 @@ module.exports.removeUserBan = async (req, res) => {
       contact: user.contact,
       role: user.role
     });
-    if (userAdded.isEmailVerified === false) {
+    if (
+      userAdded.isEmailVerified === false &&
+      userAdded.isContactVerified === false
+    ) {
+      await sendOtp.send(userAdded.contact, "GetMyPGOnline", (err, data) => {
+        console.log(data);
+        if (data.type === "error") temp1 = 0;
+        else {
+          userAdded.otpExpiresIn = Date.now() + 600000;
+          userAdded.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        }
+      });
+      if (requestedUser) await sendRemoveBanOnRequest(userAdded.email);
+      else await sendRemoveBanByAdmin(userAdded.email);
+    } else if (userAdded.isContactVerified === false) {
+      await sendOtp.send(userAdded.contact, "GetMyPGOnline", (err, data) => {
+        console.log(data);
+        if (data.type === "error") temp1 = 0;
+        else {
+          userAdded.otpExpiresIn = Date.now() + 600000;
+          userAdded.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        }
+      });
+      if (requestedUser) await sendRemoveBanOnRequestVerified(userAdded.email);
+      else await sendRemoveBanByAdminVerified(userAdded.email);
+    } else if (userAdded.isEmailVerified === false) {
       if (requestedUser) await sendRemoveBanOnRequest(userAdded.email);
       else await sendRemoveBanByAdmin(userAdded.email);
     } else {
