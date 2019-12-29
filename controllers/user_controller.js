@@ -493,7 +493,7 @@ module.exports.verifyEmail = async (req, res) => {
   let { email, token } = req.params;
   let user = await User.findOne({ email: email });
   if (user) {
-    if (user.isEmailVerified === true) {
+    if (user.isEmailVerified === true && user.isContactVerified === true) {
       const token = jwt.sign(
         {
           type: "user",
@@ -515,8 +515,29 @@ module.exports.verifyEmail = async (req, res) => {
         .status(200)
         .json({ success: true, message: "Already Verified" });
     } else if (
+      user.isEmailVerified === true &&
+      user.isContactVerified === false
+    ) {
+      if (user.otpExpiresIn >= Date.now())
+        res.status(200).json({
+          success: true,
+          message: "Already Verified! Verify your Mobile No."
+        });
+      else {
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          success: true,
+          message: "Already Verified! Verify your Mobile No. Now"
+        });
+      }
+    } else if (
       user.verifyEmail.expiresIn >= Date.now() &&
-      user.verifyEmail.token === token
+      user.verifyEmail.token === token &&
+      user.isContactVerified === true
     ) {
       user.isEmailVerified = true;
       user.verifyEmail.token = undefined;
@@ -541,7 +562,36 @@ module.exports.verifyEmail = async (req, res) => {
       res
         .header("x-auth-token", token)
         .status(200)
-        .json({ success: true, message: "Email Verified", token: token });
+        .json({
+          success: true,
+          message: "Email Verified! You can login now!",
+          token: token
+        });
+    } else if (
+      user.verifyEmail.expiresIn >= Date.now() &&
+      user.verifyEmail.token === token &&
+      user.isContactVerified === false
+    ) {
+      user.isEmailVerified = true;
+      user.verifyEmail.token = undefined;
+      user.verifyEmail.expiresIn = undefined;
+      await user.save();
+      if (user.otpExpiresIn >= Date.now()) {
+        res.status(200).json({
+          success: true,
+          message: "Email Verified! Verify your Mobile no.!"
+        });
+      } else {
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          success: true,
+          message: "Email Verified! Verify your Mobile no. now!"
+        });
+      }
     } else {
       await sendVerificationLink(user.email);
       res.status(400).json({ message: "Invalid Request or Link Expired!" });
@@ -552,12 +602,11 @@ module.exports.verifyEmail = async (req, res) => {
 };
 
 module.exports.verifyContact = async (req, res) => {
-  debugger;
   let { contact } = req.params;
   let { otp } = req.body;
   let user = await User.findOne({ contact: contact });
   if (user) {
-    if (user.isContactVerified === true) {
+    if (user.isContactVerified === true && user.isEmailVerified === true) {
       const token = jwt.sign(
         {
           type: "user",
@@ -577,47 +626,89 @@ module.exports.verifyContact = async (req, res) => {
       res
         .header("x-auth-token", token)
         .status(200)
-        .json({ success: true, message: "Already Verified" });
-    } else {
-      temp = "";
-      sendOtp.verify(contact, otp, (error, data) => {
-        console.log(data);
-        if (data.type == "success") temp += data.type;
-        if (data.type == "error") temp += data.type;
-      });
-      debugger;
-      if (user.otpExpiresIn >= Date.now() && temp === "success") {
-        user.isContactVerified = true;
-        user.otpExpiresIn = undefined;
-        await user.save();
-        const token = jwt.sign(
-          {
-            type: "user",
-            data: {
-              _id: user._id,
-              name: user.name,
-              email: user.email,
-              contact: user.contact,
-              role: user.role
-            }
-          },
-          process.env.secret,
-          {
-            expiresIn: 604800 // for 1 week time in milliseconds
-          }
-        );
-        res
-          .header("x-auth-token", token)
-          .status(200)
-          .json({ success: true, message: "Contact Verified", token: token });
-      } else {
-        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
-          user.otpExpiresIn = Date.now() + 600000;
-          user.save();
-          sendOtp.setOtpExpiry("10"); //in minutes
+        .json({ success: true, message: "Already Verified!" });
+    } else if (
+      user.isContactVerified === true &&
+      user.isEmailVerified === false
+    ) {
+      if (user.verifyEmail.expiresIn >= Date.now())
+        res.status(200).json({
+          success: true,
+          message: "Already Verified! Verify your email Id."
         });
-        res.status(400).json({ message: "Invalid Request or Link Expired!" });
+      else {
+        await sendVerificationLink(user.email);
+        res.status(200).json({
+          success: true,
+          message: "Already Verified! Verify your email Id now."
+        });
       }
+    } else {
+      await sendOtp.verify(contact, otp, async (error, data) => {
+        console.log(data);
+        if (data.type == "success") {
+          if (
+            user.otpExpiresIn >= Date.now() &&
+            user.isEmailVerified === true
+          ) {
+            user.isContactVerified = true;
+            user.otpExpiresIn = undefined;
+            await user.save();
+            const token = jwt.sign(
+              {
+                type: "user",
+                data: {
+                  _id: user._id,
+                  name: user.name,
+                  email: user.email,
+                  contact: user.contact,
+                  role: user.role
+                }
+              },
+              process.env.secret,
+              {
+                expiresIn: 604800 // for 1 week time in milliseconds
+              }
+            );
+            res
+              .header("x-auth-token", token)
+              .status(200)
+              .json({
+                success: true,
+                message: "Contact Verified",
+                token: token
+              });
+          } else if (
+            user.otpExpiresIn >= Date.now() &&
+            user.isEmailVerified === false
+          ) {
+            user.isContactVerified = true;
+            user.otpExpiresIn = undefined;
+            await user.save();
+            if (user.verifyEmail.expiresIn >= Date.now()) {
+              res.status(200).json({
+                success: true,
+                message: "Contact Verified. Need to verify your Email!"
+              });
+            } else {
+              await sendVerificationLink(user.email);
+              res.status(200).json({
+                success: true,
+                message: "Contact Verified. Need to verify your Email now!"
+              });
+            }
+          }
+        }
+        if (data.type == "error") {
+          if (user.otpExpiresIn < Date.now())
+            await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+              user.otpExpiresIn = Date.now() + 600000;
+              user.save();
+              sendOtp.setOtpExpiry("10"); //in minutes
+            });
+          res.status(400).json({ message: "Invalid Request or Link Expired!" });
+        }
+      });
     }
   } else {
     res.status(400).json({ message: "No User Found" });
