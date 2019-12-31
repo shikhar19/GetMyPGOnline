@@ -5,6 +5,7 @@ const DeletedUsers = require("../models/DeletedUsers");
 const RequestBanRemovalUsers = require("../models/RequestBanRemovalUsers");
 const nodemailer = require("nodemailer");
 const SendOtp = require("sendotp");
+const axios = require("axios");
 const messageTemplate =
   "Your One Time Password is: {{otp}}. This Code is valid only for 10 Minutes. Do not give this code to anyone, even if they say they are from GetMyPGOnline! \n\nIf you didn't request this code, simply ignore this message. Thank You!\n\nThanks,\nTeam Get My PG Online";
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, messageTemplate);
@@ -758,25 +759,35 @@ module.exports.retryContactVerification = async (req, res) => {
         });
       }
     } else {
-      // if (user.otpExpiresIn < Date.now()) {
-      debugger;
-      await sendOtp.retry(user.contact, false, (error, data) => {
-        console.log(data);
-      });
-      //}
-      if (user.isEmailVerified === false) {
+      let response = await axios.post(
+        `${process.env.MSG91_RESENDOTP_URL}${contact}&authkey=${process.env.MSG91_API_KEY}`
+      );
+      console.log(response);
+      if (
+        response.data.type === "error" &&
+        response.data.message === "No OTP request found to retryotp"
+      ) {
+        res
+          .status(400)
+          .json({ message: "Can't retry OTP without trying Verification" });
+      } else if (
+        response.data.type === "success" &&
+        user.isEmailVerified === false
+      ) {
         if (user.verifyEmail.expiresIn >= Date.now())
           res.status(200).json({
             success: true,
             message: "Called! Need to verify Email Id."
           });
-        else {
+        else if (response.data.type === "success") {
           sendVerificationLink(user.email);
           res.status(200).json({
             success: true,
             message: "Called! Need to verify Email Id now."
           });
         }
+      } else if (response.data.type === "error") {
+        res.status(400).json({ message: "OTP not sent" });
       } else {
         res.status(200).json({
           success: true,
@@ -785,6 +796,7 @@ module.exports.retryContactVerification = async (req, res) => {
       }
     }
   } else {
+    res.status(400).json({ message: "No User Found" });
   }
 };
 
