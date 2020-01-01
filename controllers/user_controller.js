@@ -6,6 +6,7 @@ const RequestBanRemovalUsers = require("../models/RequestBanRemovalUsers");
 const nodemailer = require("nodemailer");
 const SendOtp = require("sendotp");
 const axios = require("axios");
+const cloudinary = require("cloudinary");
 const messageTemplate =
   "Your One Time Password is: {{otp}}. This Code is valid only for 10 Minutes. Do not give this code to anyone, even if they say they are from GetMyPGOnline! \n\nIf you didn't request this code, simply ignore this message. Thank You!\n\nThanks,\nTeam Get My PG Online";
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, messageTemplate);
@@ -819,7 +820,7 @@ module.exports.profile = async (req, res) => {
   });
 };
 
-module.exports.updateUser = async (req, res) => {
+module.exports.updateUserFields = async (req, res) => {
   let user = await User.findById({ _id: req.user.data._id });
   let { name, password, confirmPassword } = req.body;
   passwordRegex = /^[\S]{8,}/;
@@ -840,6 +841,55 @@ module.exports.updateUser = async (req, res) => {
         { _id: req.user.data._id },
         { $set: { name: name, password: password } }
       );
+      res.status(200).json({ message: "Updated Successfully!" });
+    }
+  }
+};
+
+module.exports.updateUser = async (req, res) => {
+  debugger;
+  let user = await User.findById({ _id: req.user.data._id });
+  if (user.img.id)
+    await cloudinary.v2.api.delete_resources(
+      [user.img.id],
+      (error, done) => {}
+    );
+  let { name, password, confirmPassword } = req.body;
+  passwordRegex = /^[\S]{8,}/;
+  if (passwordRegex.test(String(password))) {
+    if (password != confirmPassword) {
+      res
+        .status(400)
+        .json({ message: "Password and Confirm Password doesn't Match!" });
+    } else if (
+      user.name === name &&
+      (await bcrypt.compare(password, user.password))
+    ) {
+      res.status(400).json({ message: "Entries Are Same Already!" });
+    } else {
+      const salt = await bcrypt.genSalt(10);
+      password = await bcrypt.hash(password, salt);
+      if (req.file === undefined) {
+        await User.updateOne(
+          { _id: req.user.data._id },
+          { $set: { name: name, password: password } }
+        );
+      } else {
+        await User.updateOne(
+          { _id: req.user.data._id },
+          {
+            $set: {
+              name: name,
+              password: password,
+              img: { id: req.file.public_id, url: req.file.url }
+            }
+          },
+          (err, done) => {
+            if (err)
+              return res.status(400).json({ message: "Something went wrong." });
+          }
+        );
+      }
       res.status(200).json({ message: "Updated Successfully!" });
     }
   }

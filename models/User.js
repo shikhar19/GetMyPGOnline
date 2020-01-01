@@ -4,6 +4,10 @@ const jwt = require("jsonwebtoken");
 const uniqueValidator = require("mongoose-unique-validator");
 
 const UserSchema = mongoose.Schema({
+  img: {
+    id: String,
+    url: String
+  },
   name: {
     type: String,
     required: true

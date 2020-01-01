@@ -8,6 +8,8 @@ let {
   someAuth
 } = require("../config/auth");
 
+const imgupload = require("../config/imgUpload");
+
 let {
   register,
   login,
@@ -16,6 +18,7 @@ let {
   retryContactVerification,
   profile,
   deleteUser,
+  updateUserFields,
   updateUser,
   removeUserBan,
   requestRemoveBan
@@ -27,7 +30,8 @@ router.get("/verifyEmail/:email/:token", verifyEmail);
 router.post("/verifyMobile/:contact", verifyContact);
 router.get("/retryVerification/:contact", retryContactVerification);
 router.get("/profile", allAuth, profile);
-router.post("/update", allAuth, updateUser);
+router.post("/updatetext", allAuth, updateUserFields);
+router.post("/update", allAuth, imgupload.upload.single("image"), updateUser);
 router.get("/delete/:id", restrictedAuth, deleteUser);
 router.get("/delete/:id/:email", someAuth, deleteUser);
 router.get("/removeban/:id", adminAuth, removeUserBan);
