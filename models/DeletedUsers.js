@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
 const DeletedUsersSchema = mongoose.Schema({
+  img: {
+    id: String,
+    url: String
+  },
   name: {
     type: String,
     required: true

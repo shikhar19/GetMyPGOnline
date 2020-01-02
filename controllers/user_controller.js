@@ -316,12 +316,17 @@ module.exports.register = async (req, res) => {
       if (user) {
         return res.status(400).json({ message: "User already registered!" });
       } else {
+        let img = {
+          id: process.env.RANDOM_IMG_ID,
+          url: process.env.RANDOM_IMG_URL
+        };
         let newUser = {
           name,
           email,
           password,
           role,
-          contact
+          contact,
+          img
         };
         if (await DeletedUsers.findOne({ email: email })) {
           return res.status(400).json({ message: "Your EmailId is Banned!" });
