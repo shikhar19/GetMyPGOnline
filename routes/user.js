@@ -16,6 +16,8 @@ let {
   verifyEmail,
   verifyContact,
   retryContactVerification,
+  sendForgetEmail,
+  forgetPassword,
   profile,
   deleteUser,
   updateUserFields,
@@ -29,6 +31,8 @@ router.post("/login", login);
 router.get("/verifyEmail/:email/:token", verifyEmail);
 router.post("/verifyMobile/:contact", verifyContact);
 router.get("/retryVerification/:contact", retryContactVerification);
+router.get("/forgetpasssword/:emailormobile", sendForgetEmail);
+router.post("/forgetpasssword/:email", forgetPassword);
 router.get("/profile", allAuth, profile);
 router.post("/updatetext", allAuth, updateUserFields);
 router.post("/update", allAuth, imgupload.upload.single("image"), updateUser);

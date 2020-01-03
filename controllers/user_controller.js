@@ -68,6 +68,53 @@ sendVerificationLink = async (req, res) => {
   }
 };
 
+forgetPasswordEmail = async (req, res) => {
+  let email = req;
+  let user = await User.findOne({ email });
+  if (user) {
+    const message = `<center style="min-width:580px;width:100%">
+      <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Lost Your Password, <strong style="color:#24292e!important">${user.name}</strong>! To change your <strong>Get-My-PG-Online</strong> profile password, we just need to verify that it's you: <strong style="color:#24292e!important">${email}</strong>.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/forgetpasssword/${email}'>Reset Your Password</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Once verified, you can change your password and start using all of Get-My-PG-Online's features to explore, book your PG, and all of this at just one click.</p>
+      <br>
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: https://getmypgonline.herokuapp.com/api/users/forgetpasssword/${email}</p>
+      <br>
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">If it's not you changing your password then follow this link: https://getmypgonline.herokuapp.com/api/users/delete/${user._id}/${email}</p>
+      <br>
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">You’re receiving this email because you forget your Get-My-PG-Online account's password. If this wasn’t you, please ignore this email.<br><br><strong>Note:</strong> Do not reply to this email. This is auto generated email message. Thank you!</p><br>Thanks,<br>Team <strong>Get My PG Online</strong></div>`;
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.email,
+        pass: process.env.password
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+    let mailOptions = {
+      from: `GET MY PG ONLINE <${process.env.email}>`,
+      to: email,
+      subject: "Reset Your Password",
+      html: message,
+      attachments: [
+        {
+          filename: "GetMyPG-Online.JPG",
+          path: __dirname + "/assets/GetMyPG-Online.JPG",
+          cid: "unique"
+        }
+      ]
+    };
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+        return 0;
+      }
+      console.log("Message sent: %s", info.messageId);
+    });
+  } else {
+    return res.status(400).json({ success: false, message: "User not found!" });
+  }
+};
+
 mailToBannedUsers = async (req, res) => {
   let email = req;
   let user = await User.findOne({ email });
@@ -316,12 +363,17 @@ module.exports.register = async (req, res) => {
       if (user) {
         return res.status(400).json({ message: "User already registered!" });
       } else {
+        let img = {
+          id: process.env.RANDOM_IMG_ID,
+          url: process.env.RANDOM_IMG_URL
+        };
         let newUser = {
           name,
           email,
           password,
           role,
-          contact
+          contact,
+          img
         };
         if (await DeletedUsers.findOne({ email: email })) {
           return res.status(400).json({ message: "Your EmailId is Banned!" });
@@ -801,6 +853,76 @@ module.exports.retryContactVerification = async (req, res) => {
   }
 };
 
+module.exports.sendForgetEmail = async (req, res) => {
+  let { emailormobile } = req.params;
+  let user =
+    (await User.findOne({ email: emailormobile })) ||
+    (await User.findOne({ contact: emailormobile }));
+  if (user) {
+    if (user.isContactVerified === true && user.isEmailVerified === true) {
+      forgetPasswordEmail(user.email);
+      res.status(200).json({ message: "Forget Password Email Sent!" });
+    } else if (
+      user.isContactVerified === true &&
+      user.isEmailVerified === false
+    ) {
+      if (user.verifyEmail.expiresIn >= Date.now())
+        res.status(200).json({
+          message: "Verify your email Id first."
+        });
+      else {
+        await sendVerificationLink(user.email);
+        res.status(200).json({
+          message: "Verify your email Id first now."
+        });
+      }
+    }
+  } else if (
+    user.isEmailVerified === true &&
+    user.isContactVerified === false
+  ) {
+    if (user.otpExpiresIn >= Date.now())
+      res.status(200).json({
+        message: "Verify your Mobile No. first."
+      });
+    else {
+      await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+        user.otpExpiresIn = Date.now() + 600000;
+        user.save();
+        sendOtp.setOtpExpiry("10"); //in minutes
+      });
+      res.status(200).json({
+        message: "Verify your Mobile No. first now."
+      });
+    }
+  } else {
+    res.status(400).json({ message: "No User Found" });
+  }
+};
+
+module.exports.forgetPassword = async (req, res) => {
+  let { email } = req.params;
+  let { password, confirmPassword } = req.body;
+  let user = await User.findOne({ email: email });
+  if (user) {
+    if (password === confirmPassword) {
+      if (await bcrypt.compare(password, user.password))
+        res.status(400).json({
+          message:
+            "Password stored with us and your entered passwords are same!"
+        });
+      const salt = await bcrypt.genSalt(10);
+      password = await bcrypt.hash(password, salt);
+      await User.updateOne({ _id: user.id }, { $set: { password: password } });
+      res.status(200).json({ message: "Password Reset Successfully!" });
+    } else {
+      res
+        .status(400)
+        .json({ message: "Password and Confirm Password doesn't Match!" });
+    }
+  }
+};
+
 module.exports.profile = async (req, res) => {
   let user = await User.findById(req.user.data._id);
   id = user._id;
@@ -847,7 +969,6 @@ module.exports.updateUserFields = async (req, res) => {
 };
 
 module.exports.updateUser = async (req, res) => {
-  debugger;
   let user = await User.findById({ _id: req.user.data._id });
   if (user.img.id)
     await cloudinary.v2.api.delete_resources(
@@ -861,11 +982,6 @@ module.exports.updateUser = async (req, res) => {
       res
         .status(400)
         .json({ message: "Password and Confirm Password doesn't Match!" });
-    } else if (
-      user.name === name &&
-      (await bcrypt.compare(password, user.password))
-    ) {
-      res.status(400).json({ message: "Entries Are Same Already!" });
     } else {
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
