@@ -440,7 +440,6 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  debugger;
   let { emailormobile, password } = req.body;
   let user =
     (await User.findOne({ email: emailormobile })) ||
@@ -901,7 +900,7 @@ module.exports.sendForgetEmail = async (req, res) => {
   }
 };
 
-module.exports.sendForgetEmail = async (req, res) => {
+module.exports.forgetPassword = async (req, res) => {
   let { email } = req.params;
   let { password, confirmPassoword } = req.body;
   let user = await User.findOne({ email: email });
@@ -968,7 +967,6 @@ module.exports.updateUserFields = async (req, res) => {
 };
 
 module.exports.updateUser = async (req, res) => {
-  debugger;
   let user = await User.findById({ _id: req.user.data._id });
   if (user.img.id)
     await cloudinary.v2.api.delete_resources(
