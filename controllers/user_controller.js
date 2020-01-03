@@ -860,7 +860,7 @@ module.exports.sendForgetEmail = async (req, res) => {
     (await User.findOne({ contact: emailormobile }));
   if (user) {
     if (user.isContactVerified === true && user.isEmailVerified === true) {
-      forgetPasswordEmail(email);
+      forgetPasswordEmail(user.email);
       res.status(200).json({ message: "Forget Password Email Sent!" });
     } else if (
       user.isContactVerified === true &&
@@ -902,16 +902,18 @@ module.exports.sendForgetEmail = async (req, res) => {
 
 module.exports.forgetPassword = async (req, res) => {
   let { email } = req.params;
-  let { password, confirmPassoword } = req.body;
+  let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });
   if (user) {
-    if (password === confirmPassoword) {
+    if (password === confirmPassword) {
+      if (await bcrypt.compare(password, user.password))
+        res.status(400).json({
+          message:
+            "Password stored with us and your entered passwords are same!"
+        });
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
-      await User.updateOne(
-        { _id: req.user.data._id },
-        { $set: { password: password } }
-      );
+      await User.updateOne({ _id: user.id }, { $set: { password: password } });
       res.status(200).json({ message: "Password Reset Successfully!" });
     } else {
       res
