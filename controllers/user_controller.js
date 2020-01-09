@@ -936,7 +936,6 @@ module.exports.profile = async (req, res) => {
     isEmailVerified: isEmailVerified,
     name: name,
     email: email,
-    password: password,
     contact: contact,
     role: role
   });
