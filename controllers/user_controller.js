@@ -927,6 +927,7 @@ module.exports.profile = async (req, res) => {
   let user = await User.findById(req.user.data._id);
   id = user._id;
   isEmailVerified = user.isEmailVerified;
+  isContactVerified = user.isContactVerified;
   name = user.name;
   email = user.email;
   contact = user.contact;
@@ -934,6 +935,7 @@ module.exports.profile = async (req, res) => {
   return res.status(200).json({
     _id: id,
     isEmailVerified: isEmailVerified,
+    isContactVerified: isContactVerified,
     name: name,
     email: email,
     contact: contact,
