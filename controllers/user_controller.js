@@ -856,7 +856,6 @@ module.exports.retryContactVerification = async (req, res) => {
 };
 
 module.exports.sendForgetEmail = async (req, res) => {
-  debugger;
   let { emailormobile } = req.params;
   let user =
     (await User.findOne({ email: emailormobile })) ||
@@ -947,6 +946,56 @@ module.exports.forgetPassword = async (req, res) => {
   let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });
   if (user) {
+    if (
+      !user.isEmailVerified &&
+      !user.isContactVerified &&
+      user.otpExpiresIn >= Date.now() &&
+      user.verifyEmail.expiresIn >= Date.now()
+    )
+      res.status(400).json({ message: "Get yourself verified!" });
+    else if (
+      !user.isEmailVerified &&
+      !user.isContactVerified &&
+      user.otpExpiresIn < Date.now() &&
+      user.verifyEmail.expiresIn < Date.now()
+    ) {
+      await sendVerificationLink(user.email);
+      await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+        user.otpExpiresIn = Date.now() + 600000;
+        user.save();
+        sendOtp.setOtpExpiry("10"); //in minutes
+      });
+      res.status(400).json({
+        message: "Verify your email Id & Contact No now."
+      });
+    } else if (!user.isEmailVerified) {
+      if (user.verifyEmail.expiresIn >= Date.now())
+        res.status(400).json({
+          message: "Verify your email Id first."
+        });
+      else {
+        await sendVerificationLink(user.email);
+        res.status(400).json({
+          message: "Verify your email Id first now."
+        });
+      }
+    } else if (!user.isContactVerified) {
+      if (user.otpExpiresIn >= Date.now())
+        res.status(200).json({
+          message: "Verify your Mobile No. first."
+        });
+      else {
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          message: "Verify your Mobile No. first now."
+        });
+      }
+    }
+  } else {
     if (password === confirmPassword) {
       if (await bcrypt.compare(password, user.password))
         res.status(400).json({
