@@ -354,81 +354,83 @@ module.exports.register = async (req, res) => {
     return res.status(400).json({ message: "All fields are mandatory!" });
   }
   let emailRegex = /^\S+@\S+\.\S+/,
-    // phoneRegex = /(^[6-9]{1}[0-9]{9}$)/,
+    phoneRegex = /(^[6-9]{1}[0-9]{9}$)/,
     passwordRegex = /^[\S]{8,}/;
   if (emailRegex.test(email)) {
     if (passwordRegex.test(String(password))) {
-      // if (phoneRegex.test(Number(contact))) {
-      let user = await User.findOne({ email });
-      if (user) {
-        return res.status(400).json({ message: "User already registered!" });
-      } else {
-        let img = {
-          id: process.env.RANDOM_IMG_ID,
-          url: process.env.RANDOM_IMG_URL
-        };
-        let newUser = {
-          name,
-          email,
-          password,
-          role,
-          contact,
-          img
-        };
-        if (await DeletedUsers.findOne({ email: email })) {
-          return res.status(400).json({ message: "Your EmailId is Banned!" });
-        }
-        const salt = await bcrypt.genSalt(10);
-        newUser.password = await bcrypt.hash(newUser.password, salt);
-        user = await User.create(newUser);
-        (temp = 1), (temp1 = 1);
-        try {
-          await sendVerificationLink(newUser.email);
-        } catch (err) {
-          temp = 0;
-          console.log(err);
-        }
-        try {
-          await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
-            if (data.type === "error") temp1 = 0;
-            else {
-              user.otpExpiresIn = Date.now() + 600000;
-              user.save();
-              sendOtp.setOtpExpiry("10"); //in minutes
-            }
-          });
-        } catch (err) {
-          console.log(err);
-        }
-        if (temp === 0) {
-          return res.status(400).json({
-            success: false,
-            message: "Registeration Successful!",
-            error: "Verification Email cannot be sent. Login to recieve!"
-          });
-        } else if (temp1 === 0) {
-          return res.status(400).json({
-            success: false,
-            message: "Registeration Successful!",
-            error: "OTP cannot be sent. Login to recieve!"
-          });
-        } else if (temp === 0 && temp1 === 0) {
-          return res.status(400).json({
-            success: false,
-            message: "Registeration Successful!",
-            error: "Verification Email & OTP cannot be sent. Login to recieve!"
-          });
+      if (phoneRegex.test(Number(contact))) {
+        let user =
+          (await User.findOne({ email })) || (await User.findOne({ contact }));
+        if (user) {
+          return res.status(400).json({ message: "User already registered!" });
         } else {
-          res.status(200).json({
-            success: true,
-            message:
-              "Registeration Successful! Verify Your Email Address & Mobile Number!"
-          });
+          let img = {
+            id: process.env.RANDOM_IMG_ID,
+            url: process.env.RANDOM_IMG_URL
+          };
+          let newUser = {
+            name,
+            email,
+            password,
+            role,
+            contact,
+            img
+          };
+          if (await DeletedUsers.findOne({ email: email })) {
+            return res.status(400).json({ message: "Your EmailId is Banned!" });
+          }
+          const salt = await bcrypt.genSalt(10);
+          newUser.password = await bcrypt.hash(newUser.password, salt);
+          user = await User.create(newUser);
+          (temp = 1), (temp1 = 1);
+          try {
+            await sendVerificationLink(newUser.email);
+          } catch (err) {
+            temp = 0;
+            console.log(err);
+          }
+          try {
+            await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+              if (data.type === "error") temp1 = 0;
+              else {
+                user.otpExpiresIn = Date.now() + 600000;
+                user.save();
+                sendOtp.setOtpExpiry("10"); //in minutes
+              }
+            });
+          } catch (err) {
+            console.log(err);
+          }
+          if (temp === 0) {
+            return res.status(400).json({
+              success: false,
+              message: "Registeration Successful!",
+              error: "Verification Email cannot be sent. Login to recieve!"
+            });
+          } else if (temp1 === 0) {
+            return res.status(400).json({
+              success: false,
+              message: "Registeration Successful!",
+              error: "OTP cannot be sent. Login to recieve!"
+            });
+          } else if (temp === 0 && temp1 === 0) {
+            return res.status(400).json({
+              success: false,
+              message: "Registeration Successful!",
+              error:
+                "Verification Email & OTP cannot be sent. Login to recieve!"
+            });
+          } else {
+            res.status(200).json({
+              success: true,
+              message:
+                "Registeration Successful! Verify Your Email Address & Mobile Number!"
+            });
+          }
         }
+      } else {
+        return res.status(400).json({ message: "Contact number not valid!" });
       }
-      // } else {
-      //   return res.status(400).json({ message: "Contact number not valid!" });
-      // }
     } else {
       return res
         .status(400)
@@ -927,6 +929,7 @@ module.exports.profile = async (req, res) => {
   let user = await User.findById(req.user.data._id);
   id = user._id;
   isEmailVerified = user.isEmailVerified;
+  isContactVerified = user.isContactVerified;
   name = user.name;
   email = user.email;
   contact = user.contact;
@@ -934,9 +937,9 @@ module.exports.profile = async (req, res) => {
   return res.status(200).json({
     _id: id,
     isEmailVerified: isEmailVerified,
+    isContactVerified: isContactVerified,
     name: name,
     email: email,
-    password: password,
     contact: contact,
     role: role
   });
@@ -970,11 +973,6 @@ module.exports.updateUserFields = async (req, res) => {
 
 module.exports.updateUser = async (req, res) => {
   let user = await User.findById({ _id: req.user.data._id });
-  if (user.img.id)
-    await cloudinary.v2.api.delete_resources(
-      [user.img.id],
-      (error, done) => {}
-    );
   let { name, password, confirmPassword } = req.body;
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
@@ -991,6 +989,10 @@ module.exports.updateUser = async (req, res) => {
           { $set: { name: name, password: password } }
         );
       } else {
+        if (user.img.id != process.env.RANDOM_IMG_ID)
+          await cloudinary.uploader.destroy(user.img.id, (error, result) => {
+            console.log(result);
+          });
         await User.updateOne(
           { _id: req.user.data._id },
           {
@@ -1025,7 +1027,11 @@ module.exports.deleteUser = async (req, res) => {
         isEmailVerified: user.isEmailVerified,
         isContactVerified: user.isContactVerified,
         contact: user.contact,
-        role: user.role
+        role: user.role,
+        img: {
+          id: user.img.id,
+          url: user.img.url
+        }
       });
       deletedUser.save();
       await mailToBannedUsers(deletedUser.email);
@@ -1052,7 +1058,11 @@ module.exports.removeUserBan = async (req, res) => {
       password: user.password,
       isEmailVerified: user.isEmailVerified,
       contact: user.contact,
-      role: user.role
+      role: user.role,
+      img: {
+        id: user.img.id,
+        url: user.img.url
+      }
     });
     if (
       userAdded.isEmailVerified === false &&

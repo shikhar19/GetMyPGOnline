@@ -1,12 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-let {
-  allAuth,
-  adminAuth,
-  restrictedAuth,
-  someAuth
-} = require("../config/auth");
+let { allAuth, adminAuth, someAuth } = require("../config/auth");
 
 const imgupload = require("../config/imgUpload");
 
@@ -36,7 +31,6 @@ router.post("/forgetpasssword/:email", forgetPassword);
 router.get("/profile", allAuth, profile);
 router.post("/updatetext", allAuth, updateUserFields);
 router.post("/update", allAuth, imgupload.upload.single("image"), updateUser);
-router.get("/delete/:id", restrictedAuth, deleteUser);
 router.get("/delete/:id/:email", someAuth, deleteUser);
 router.get("/removeban/:id", adminAuth, removeUserBan);
 router.post("/requestremoveban/:email", requestRemoveBan);
