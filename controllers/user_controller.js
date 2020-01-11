@@ -354,7 +354,7 @@ module.exports.register = async (req, res) => {
     return res.status(400).json({ message: "All fields are mandatory!" });
   }
   let emailRegex = /^\S+@\S+\.\S+/,
-    phoneRegex = /(^[6-9]{1}[0-9]{9}$)/,
+    phoneRegex = /^([0|\+[0-9]{1,5})?([7-9][0-9]{9})$/,
     passwordRegex = /^[\S]{8,}/;
   if (emailRegex.test(email)) {
     if (passwordRegex.test(String(password))) {
@@ -856,6 +856,7 @@ module.exports.retryContactVerification = async (req, res) => {
 };
 
 module.exports.sendForgetEmail = async (req, res) => {
+  debugger;
   let { emailormobile } = req.params;
   let user =
     (await User.findOne({ email: emailormobile })) ||
@@ -878,24 +879,63 @@ module.exports.sendForgetEmail = async (req, res) => {
           message: "Verify your email Id first now."
         });
       }
-    }
-  } else if (
-    user.isEmailVerified === true &&
-    user.isContactVerified === false
-  ) {
-    if (user.otpExpiresIn >= Date.now())
-      res.status(200).json({
-        message: "Verify your Mobile No. first."
-      });
-    else {
-      await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
-        user.otpExpiresIn = Date.now() + 600000;
-        user.save();
-        sendOtp.setOtpExpiry("10"); //in minutes
-      });
-      res.status(200).json({
-        message: "Verify your Mobile No. first now."
-      });
+    } else if (
+      user.isEmailVerified === true &&
+      user.isContactVerified === false
+    ) {
+      if (user.otpExpiresIn >= Date.now())
+        res.status(200).json({
+          message: "Verify your Mobile No. first."
+        });
+      else {
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          message: "Verify your Mobile No. first now."
+        });
+      }
+    } else {
+      if (
+        user.verifyEmail.expiresIn >= Date.now() &&
+        user.otpExpiresIn >= Date.now()
+      )
+        res.status(200).json({
+          message: "Verify your email Id first & Mobile No."
+        });
+      else if (
+        user.verifyEmail.expiresIn < Date.now() &&
+        user.otpExpiresIn >= Date.now()
+      ) {
+        await sendVerificationLink(user.email);
+        res.status(200).json({
+          message: "Verify your email Id first now & Mobile No."
+        });
+      } else if (
+        user.verifyEmail.expiresIn >= Date.now() &&
+        user.otpExpiresIn < Date.now()
+      ) {
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          message: "Verify your email Id first & Mobile No. now"
+        });
+      } else {
+        await sendVerificationLink(user.email);
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          message: "Verify your email Id first now and Mobile No. now"
+        });
+      }
     }
   } else {
     res.status(400).json({ message: "No User Found" });
