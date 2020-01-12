@@ -8,7 +8,7 @@ const SendOtp = require("sendotp");
 const axios = require("axios");
 const cloudinary = require("cloudinary");
 const messageTemplate =
-  "Your One Time Password is: {{otp}}. This Code is valid only for 10 Minutes. Do not give this code to anyone, even if they say they are from GetMyPGOnline! \n\nIf you didn't request this code, simply ignore this message. Thank You!\n\nThanks,\nTeam Get My PG Online";
+  "Your One Time Password is: {{otp}}. This Code is valid only for 10 Minutes. Do not give this code to anyone, even if they say they are from GetMyPGOnline! \n\nIf you didn't request this code, simply ignore this message.\n\nThanks,\nTeam Get My PG Online";
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, messageTemplate);
 
 require("dotenv").config();
@@ -73,9 +73,9 @@ forgetPasswordEmail = async (req, res) => {
   let user = await User.findOne({ email });
   if (user) {
     const message = `<center style="min-width:580px;width:100%">
-      <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Lost Your Password, <strong style="color:#24292e!important">${user.name}</strong>! To change your <strong>Get-My-PG-Online</strong> profile password, we just need to verify that it's you: <strong style="color:#24292e!important">${email}</strong>.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/forgetpasssword/${email}'>Reset Your Password</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Once verified, you can change your password and start using all of Get-My-PG-Online's features to explore, book your PG, and all of this at just one click.</p>
+      <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important"><img src="cid:unique" width="500" height="50" style="clear:both;display:block;float:none;height:100px;margin:0 auto;max-height:100px;max-width:500px;outline:none;text-decoration:none;width:500px" align="none" class="CToWUd"></div></center><div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px"><h1 style="color:#586069;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:16px;font-weight:250!important;line-height:1.25;margin:0 0 30px;padding:0;text-align:left;word-break:normal">Lost Your Password, <strong style="color:#24292e!important">${user.name}</strong>! To change your <strong>Get-My-PG-Online</strong> profile password, we just need to verify that it's you: <strong style="color:#24292e!important">${email}</strong>.<br><br><br><a style="background:#0366d6;border-radius:5px;border:1px solid #0366d6;box-sizing:border-box;color:#ffffff;display:inline-block;font-size:14px;font-weight:bold;margin:0;padding:10px 20px;text-decoration:none" href='https://getmypgonline.herokuapp.com/api/users/forgetpasssword/${user.id}/${email}'>Reset Your Password</a><br><br><br><p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Once verified, you can change your password and start using all of Get-My-PG-Online's features to explore, book your PG, and all of this at just one click.</p>
       <br>
-      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: https://getmypgonline.herokuapp.com/api/users/forgetpasssword/${email}</p>
+      <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">Button not working? Paste the following link into your browser: https://getmypgonline.herokuapp.com/api/users/forgetpasssword/${user.id}/${email}</p>
       <br>
       <p style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px!important;font-weight:normal;line-height:1.25;margin:0 0 15px;padding:0;text-align:left">If it's not you changing your password then follow this link: https://getmypgonline.herokuapp.com/api/users/delete/${user._id}/${email}</p>
       <br>
@@ -354,7 +354,7 @@ module.exports.register = async (req, res) => {
     return res.status(400).json({ message: "All fields are mandatory!" });
   }
   let emailRegex = /^\S+@\S+\.\S+/,
-    phoneRegex = /(^[6-9]{1}[0-9]{9}$)/,
+    phoneRegex = /^([0|\+[0-9]{1,5})?([7-9][0-9]{9})$/,
     passwordRegex = /^[\S]{8,}/;
   if (emailRegex.test(email)) {
     if (passwordRegex.test(String(password))) {
@@ -376,7 +376,7 @@ module.exports.register = async (req, res) => {
             contact,
             img
           };
-          if (await DeletedUsers.findOne({ email: email })) {
+          if (await DeletedUsers.findOne({ email: email }) || await DeletedUsers.findOne({ contact: contact })) {
             return res.status(400).json({ message: "Your EmailId is Banned!" });
           }
           const salt = await bcrypt.genSalt(10);
@@ -878,24 +878,63 @@ module.exports.sendForgetEmail = async (req, res) => {
           message: "Verify your email Id first now."
         });
       }
-    }
-  } else if (
-    user.isEmailVerified === true &&
-    user.isContactVerified === false
-  ) {
-    if (user.otpExpiresIn >= Date.now())
-      res.status(200).json({
-        message: "Verify your Mobile No. first."
-      });
-    else {
-      await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
-        user.otpExpiresIn = Date.now() + 600000;
-        user.save();
-        sendOtp.setOtpExpiry("10"); //in minutes
-      });
-      res.status(200).json({
-        message: "Verify your Mobile No. first now."
-      });
+    } else if (
+      user.isEmailVerified === true &&
+      user.isContactVerified === false
+    ) {
+      if (user.otpExpiresIn >= Date.now())
+        res.status(200).json({
+          message: "Verify your Mobile No. first."
+        });
+      else {
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          message: "Verify your Mobile No. first now."
+        });
+      }
+    } else {
+      if (
+        user.verifyEmail.expiresIn >= Date.now() &&
+        user.otpExpiresIn >= Date.now()
+      )
+        res.status(200).json({
+          message: "Verify your email Id first & Mobile No."
+        });
+      else if (
+        user.verifyEmail.expiresIn < Date.now() &&
+        user.otpExpiresIn >= Date.now()
+      ) {
+        await sendVerificationLink(user.email);
+        res.status(200).json({
+          message: "Verify your email Id first now & Mobile No."
+        });
+      } else if (
+        user.verifyEmail.expiresIn >= Date.now() &&
+        user.otpExpiresIn < Date.now()
+      ) {
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          message: "Verify your email Id first & Mobile No. now"
+        });
+      } else {
+        await sendVerificationLink(user.email);
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          message: "Verify your email Id first now and Mobile No. now"
+        });
+      }
     }
   } else {
     res.status(400).json({ message: "No User Found" });
@@ -903,10 +942,60 @@ module.exports.sendForgetEmail = async (req, res) => {
 };
 
 module.exports.forgetPassword = async (req, res) => {
-  let { email } = req.params;
+  let { id, email } = req.params;
   let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });
   if (user) {
+    if (
+      !user.isEmailVerified &&
+      !user.isContactVerified &&
+      user.otpExpiresIn >= Date.now() &&
+      user.verifyEmail.expiresIn >= Date.now()
+    )
+      res.status(400).json({ message: "Get yourself verified!" });
+    else if (
+      !user.isEmailVerified &&
+      !user.isContactVerified &&
+      user.otpExpiresIn < Date.now() &&
+      user.verifyEmail.expiresIn < Date.now()
+    ) {
+      await sendVerificationLink(user.email);
+      await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+        user.otpExpiresIn = Date.now() + 600000;
+        user.save();
+        sendOtp.setOtpExpiry("10"); //in minutes
+      });
+      res.status(400).json({
+        message: "Verify your email Id & Contact No now."
+      });
+    } else if (!user.isEmailVerified) {
+      if (user.verifyEmail.expiresIn >= Date.now())
+        res.status(400).json({
+          message: "Verify your email Id first."
+        });
+      else {
+        await sendVerificationLink(user.email);
+        res.status(400).json({
+          message: "Verify your email Id first now."
+        });
+      }
+    } else if (!user.isContactVerified) {
+      if (user.otpExpiresIn >= Date.now())
+        res.status(200).json({
+          message: "Verify your Mobile No. first."
+        });
+      else {
+        await sendOtp.send(user.contact, "GetMyPGOnline", (err, data) => {
+          user.otpExpiresIn = Date.now() + 600000;
+          user.save();
+          sendOtp.setOtpExpiry("10"); //in minutes
+        });
+        res.status(200).json({
+          message: "Verify your Mobile No. first now."
+        });
+      }
+    }
+  } else {
     if (password === confirmPassword) {
       if (await bcrypt.compare(password, user.password))
         res.status(400).json({
@@ -1016,28 +1105,24 @@ module.exports.updateUser = async (req, res) => {
 module.exports.deleteUser = async (req, res) => {
   let user = await User.findById(req.params.id);
   if (user) {
-    if (user.role == "admin") {
-      res.status(400).json({ message: "Cannot Delete User!" });
-    } else {
-      deletedUser = await DeletedUsers.create({
-        _id: user.id,
-        name: user.name,
-        email: user.email,
-        password: user.password,
-        isEmailVerified: user.isEmailVerified,
-        isContactVerified: user.isContactVerified,
-        contact: user.contact,
-        role: user.role,
-        img: {
-          id: user.img.id,
-          url: user.img.url
-        }
-      });
-      deletedUser.save();
-      await mailToBannedUsers(deletedUser.email);
-      await User.deleteOne({ _id: req.params.id });
-      res.status(200).json({ message: "Deleted Successfully!" });
-    }
+    deletedUser = await DeletedUsers.create({
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      isEmailVerified: user.isEmailVerified,
+      isContactVerified: user.isContactVerified,
+      contact: user.contact,
+      role: user.role,
+      img: {
+        id: user.img.id,
+        url: user.img.url
+      }
+    });
+    deletedUser.save();
+    await mailToBannedUsers(deletedUser.email);
+    await User.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: "Deleted Successfully!" });
   } else {
     if (await DeletedUsers.findOne({ deletedID: req.params.id })) {
       res.status(400).json({ message: "Already Deleted!" });
