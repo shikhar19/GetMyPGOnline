@@ -1105,28 +1105,24 @@ module.exports.updateUser = async (req, res) => {
 module.exports.deleteUser = async (req, res) => {
   let user = await User.findById(req.params.id);
   if (user) {
-    if (user.role == "admin") {
-      res.status(400).json({ message: "Cannot Delete User!" });
-    } else {
-      deletedUser = await DeletedUsers.create({
-        _id: user.id,
-        name: user.name,
-        email: user.email,
-        password: user.password,
-        isEmailVerified: user.isEmailVerified,
-        isContactVerified: user.isContactVerified,
-        contact: user.contact,
-        role: user.role,
-        img: {
-          id: user.img.id,
-          url: user.img.url
-        }
-      });
-      deletedUser.save();
-      await mailToBannedUsers(deletedUser.email);
-      await User.deleteOne({ _id: req.params.id });
-      res.status(200).json({ message: "Deleted Successfully!" });
-    }
+    deletedUser = await DeletedUsers.create({
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      isEmailVerified: user.isEmailVerified,
+      isContactVerified: user.isContactVerified,
+      contact: user.contact,
+      role: user.role,
+      img: {
+        id: user.img.id,
+        url: user.img.url
+      }
+    });
+    deletedUser.save();
+    await mailToBannedUsers(deletedUser.email);
+    await User.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: "Deleted Successfully!" });
   } else {
     if (await DeletedUsers.findOne({ deletedID: req.params.id })) {
       res.status(400).json({ message: "Already Deleted!" });
