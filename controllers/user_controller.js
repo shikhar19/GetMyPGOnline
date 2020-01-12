@@ -942,7 +942,7 @@ module.exports.sendForgetEmail = async (req, res) => {
 };
 
 module.exports.forgetPassword = async (req, res) => {
-  let { email } = req.params;
+  let { id, email } = req.params;
   let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });
   if (user) {
