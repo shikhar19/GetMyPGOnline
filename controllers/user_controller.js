@@ -376,7 +376,7 @@ module.exports.register = async (req, res) => {
             contact,
             img
           };
-          if (await DeletedUsers.findOne({ email: email })) {
+          if (await DeletedUsers.findOne({ email: email }) || await DeletedUsers.findOne({ contact: contact })) {
             return res.status(400).json({ message: "Your EmailId is Banned!" });
           }
           const salt = await bcrypt.genSalt(10);
