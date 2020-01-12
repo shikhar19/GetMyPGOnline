@@ -362,7 +362,7 @@ module.exports.register = async (req, res) => {
         let user =
           (await User.findOne({ email })) || (await User.findOne({ contact }));
         if (user) {
-          return res.status(400).json({ message: "User already registered!" });
+          return res.status(400).json({ message: "Email or Contact already registered with us!" });
         } else {
           let img = {
             id: process.env.RANDOM_IMG_ID,
