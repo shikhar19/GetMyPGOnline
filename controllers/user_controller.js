@@ -947,6 +947,7 @@ module.exports.sendForgetEmail = async (req, res) => {
 };
 
 module.exports.forgetPassword = async (req, res) => {
+  debugger;
   let { id, email } = req.params;
   let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });
@@ -999,23 +1000,30 @@ module.exports.forgetPassword = async (req, res) => {
           message: "Verify your Mobile No. first now."
         });
       }
+    } else {
+      if (password === confirmPassword) {
+        if (await bcrypt.compare(password, user.password))
+          return res.status(400).json({
+            message:
+              "Password stored with us and your entered passwords are same!"
+          });
+        const salt = await bcrypt.genSalt(10);
+        password = await bcrypt.hash(password, salt);
+        await User.updateOne(
+          { _id: user.id },
+          { $set: { password: password } }
+        );
+        return res
+          .status(200)
+          .json({ message: "Password Reset Successfully!" });
+      } else {
+        return res
+          .status(400)
+          .json({ message: "Password and Confirm Password doesn't Match!" });
+      }
     }
   } else {
-    if (password === confirmPassword) {
-      if (await bcrypt.compare(password, user.password))
-        res.status(400).json({
-          message:
-            "Password stored with us and your entered passwords are same!"
-        });
-      const salt = await bcrypt.genSalt(10);
-      password = await bcrypt.hash(password, salt);
-      await User.updateOne({ _id: user.id }, { $set: { password: password } });
-      res.status(200).json({ message: "Password Reset Successfully!" });
-    } else {
-      res
-        .status(400)
-        .json({ message: "Password and Confirm Password doesn't Match!" });
-    }
+    return res.status(400).json({ message: "No such User!" });
   }
 };
 
