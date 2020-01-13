@@ -362,7 +362,9 @@ module.exports.register = async (req, res) => {
         let user =
           (await User.findOne({ email })) || (await User.findOne({ contact }));
         if (user) {
-          return res.status(400).json({ message: "Email or Contact already registered with us!" });
+          return res
+            .status(400)
+            .json({ message: "Email or Contact already registered with us!" });
         } else {
           let img = {
             id: process.env.RANDOM_IMG_ID,
@@ -376,7 +378,10 @@ module.exports.register = async (req, res) => {
             contact,
             img
           };
-          if (await DeletedUsers.findOne({ email: email }) || await DeletedUsers.findOne({ contact: contact })) {
+          if (
+            (await DeletedUsers.findOne({ email: email })) ||
+            (await DeletedUsers.findOne({ contact: contact }))
+          ) {
             return res.status(400).json({ message: "Your EmailId is Banned!" });
           }
           const salt = await bcrypt.genSalt(10);
@@ -541,7 +546,7 @@ module.exports.login = async (req, res) => {
     return res
       .header("x-auth-token", token)
       .status(200)
-      .json({ success: true, token: token });
+      .json({ success: true, message: "Logged In!", token: token });
   }
 };
 
@@ -731,7 +736,7 @@ module.exports.verifyContact = async (req, res) => {
               .status(200)
               .json({
                 success: true,
-                message: "Contact Verified",
+                message: "Contact Verified. You can login now!",
                 token: token
               });
           } else if (
