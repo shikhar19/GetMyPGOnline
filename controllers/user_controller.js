@@ -1076,6 +1076,11 @@ module.exports.updateUserFields = async (req, res) => {
 module.exports.updateUser = async (req, res) => {
   let user = await User.findById({ _id: req.user.data._id });
   let { name, password, confirmPassword } = req.body;
+  if (name === undefined) name = user.name;
+  if (password === undefined && confirmPassword === undefined) {
+    password = user.password;
+    confirmPassword = user.confirmPassword;
+  }
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
     if (password != confirmPassword) {
@@ -1083,9 +1088,12 @@ module.exports.updateUser = async (req, res) => {
         .status(400)
         .json({ message: "Password and Confirm Password doesn't Match!" });
     } else {
+      let temp = await bcrypt.compare(password, user.password);
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
       if (req.file === undefined) {
+        if (user.name === name && temp)
+          return res.status(400).json({ message: "Entries Are Same Already!" });
         await User.updateOne(
           { _id: req.user.data._id },
           { $set: { name: name, password: password } }
