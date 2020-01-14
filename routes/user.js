@@ -27,10 +27,10 @@ router.post("/verifyMobile/:contact", verifyContact);
 router.get("/retryVerification/:contact", retryContactVerification);
 router.get("/profile", allAuth, profile);
 router.get("/forgetpassword/:emailormobile", sendForgetEmail);
-router.post("/forgetpassword/:id/:email", forgetPassword); //
+router.post("/forgetpassword/:id/:email", forgetPassword);
 router.post("/update", allAuth, imgupload.upload.single("image"), updateUser);
-router.get("/delete/:id/:email", someAuth, deleteUser);
-router.get("/removeban/:id", adminAuth, removeUserBan);
+router.get("/delete/:id/:email", someAuth, deleteUser); //
 router.post("/requestremoveban/:email", requestRemoveBan);
+router.get("/removeban/:id", adminAuth, removeUserBan);
 
 module.exports = router;
