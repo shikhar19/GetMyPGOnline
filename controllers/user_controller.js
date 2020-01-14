@@ -362,7 +362,9 @@ module.exports.register = async (req, res) => {
         let user =
           (await User.findOne({ email })) || (await User.findOne({ contact }));
         if (user) {
-          return res.status(400).json({ message: "User already registered!" });
+          return res
+            .status(400)
+            .json({ message: "Email or Contact already registered with us!" });
         } else {
           let img = {
             id: process.env.RANDOM_IMG_ID,
@@ -376,7 +378,10 @@ module.exports.register = async (req, res) => {
             contact,
             img
           };
-          if (await DeletedUsers.findOne({ email: email }) || await DeletedUsers.findOne({ contact: contact })) {
+          if (
+            (await DeletedUsers.findOne({ email: email })) ||
+            (await DeletedUsers.findOne({ contact: contact }))
+          ) {
             return res.status(400).json({ message: "Your EmailId is Banned!" });
           }
           const salt = await bcrypt.genSalt(10);
@@ -446,6 +451,16 @@ module.exports.login = async (req, res) => {
   let user =
     (await User.findOne({ email: emailormobile })) ||
     (await User.findOne({ contact: emailormobile }));
+  let user1 =
+    (await DeletedUsers.findOne({ email: emailormobile })) ||
+    (await DeletedUsers.findOne({ contact: emailormobile }));
+  if (user1) {
+    return res.status(401).json({
+      success: false,
+      message:
+        "You are Banned from our services! If you did it accidently or think it's incorrect then you can request our admins to remove ban!"
+    });
+  }
   if (!user) {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
@@ -541,7 +556,7 @@ module.exports.login = async (req, res) => {
     return res
       .header("x-auth-token", token)
       .status(200)
-      .json({ success: true, token: token });
+      .json({ success: true, message: "Logged In!", token: token });
   }
 };
 
@@ -731,7 +746,7 @@ module.exports.verifyContact = async (req, res) => {
               .status(200)
               .json({
                 success: true,
-                message: "Contact Verified",
+                message: "Contact Verified. You can login now!",
                 token: token
               });
           } else if (
@@ -942,6 +957,7 @@ module.exports.sendForgetEmail = async (req, res) => {
 };
 
 module.exports.forgetPassword = async (req, res) => {
+  debugger;
   let { id, email } = req.params;
   let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });
@@ -994,23 +1010,30 @@ module.exports.forgetPassword = async (req, res) => {
           message: "Verify your Mobile No. first now."
         });
       }
+    } else {
+      if (password === confirmPassword) {
+        if (await bcrypt.compare(password, user.password))
+          return res.status(400).json({
+            message:
+              "Password stored with us and your entered passwords are same!"
+          });
+        const salt = await bcrypt.genSalt(10);
+        password = await bcrypt.hash(password, salt);
+        await User.updateOne(
+          { _id: user.id },
+          { $set: { password: password } }
+        );
+        return res
+          .status(200)
+          .json({ message: "Password Reset Successfully!" });
+      } else {
+        return res
+          .status(400)
+          .json({ message: "Password and Confirm Password doesn't Match!" });
+      }
     }
   } else {
-    if (password === confirmPassword) {
-      if (await bcrypt.compare(password, user.password))
-        res.status(400).json({
-          message:
-            "Password stored with us and your entered passwords are same!"
-        });
-      const salt = await bcrypt.genSalt(10);
-      password = await bcrypt.hash(password, salt);
-      await User.updateOne({ _id: user.id }, { $set: { password: password } });
-      res.status(200).json({ message: "Password Reset Successfully!" });
-    } else {
-      res
-        .status(400)
-        .json({ message: "Password and Confirm Password doesn't Match!" });
-    }
+    return res.status(400).json({ message: "No such User!" });
   }
 };
 
@@ -1063,6 +1086,11 @@ module.exports.updateUserFields = async (req, res) => {
 module.exports.updateUser = async (req, res) => {
   let user = await User.findById({ _id: req.user.data._id });
   let { name, password, confirmPassword } = req.body;
+  if (name === undefined) name = user.name;
+  if (password === undefined && confirmPassword === undefined) {
+    password = user.password;
+    confirmPassword = user.confirmPassword;
+  }
   passwordRegex = /^[\S]{8,}/;
   if (passwordRegex.test(String(password))) {
     if (password != confirmPassword) {
@@ -1070,9 +1098,12 @@ module.exports.updateUser = async (req, res) => {
         .status(400)
         .json({ message: "Password and Confirm Password doesn't Match!" });
     } else {
+      let temp = await bcrypt.compare(password, user.password);
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
       if (req.file === undefined) {
+        if (user.name === name && temp)
+          return res.status(400).json({ message: "Entries Are Same Already!" });
         await User.updateOne(
           { _id: req.user.data._id },
           { $set: { name: name, password: password } }
@@ -1133,6 +1164,7 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 module.exports.removeUserBan = async (req, res) => {
+  debugger;
   let user = await DeletedUsers.findById(req.params.id);
   let requestedUser = await RequestBanRemovalUsers.findById(req.params.id);
   if (user) {
@@ -1142,6 +1174,7 @@ module.exports.removeUserBan = async (req, res) => {
       email: user.email,
       password: user.password,
       isEmailVerified: user.isEmailVerified,
+      isContactVerified: user.isContactVerified,
       contact: user.contact,
       role: user.role,
       img: {
@@ -1209,6 +1242,11 @@ module.exports.requestRemoveBan = async (req, res) => {
   } else if (requestedUser) {
     res.status(200).json({ message: "Your Request is Already in Process!" });
   } else {
-    res.status(400).json({ message: "You can't request!" });
+    let user1 = await User.findOne({ email: req.params.email });
+    if (user1)
+      return res
+        .status(400)
+        .json({ message: "You are not banned from our services!" });
+    return res.status(400).json({ message: "You are not registered yet!" });
   }
 };
