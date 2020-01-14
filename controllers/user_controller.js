@@ -451,6 +451,14 @@ module.exports.login = async (req, res) => {
   let user =
     (await User.findOne({ email: emailormobile })) ||
     (await User.findOne({ contact: emailormobile }));
+  let user1 =
+    (await DeletedUsers.findOne({ email: emailormobile })) ||
+    (await DeletedUsers.findOne({ contact: emailormobile }));
+  if (user1) {
+    return res
+      .status(401)
+      .json({ success: false, message: "You are Banned from our services!" });
+  }
   if (!user) {
     return res.status(400).json({ success: false, message: "User not found!" });
   }
