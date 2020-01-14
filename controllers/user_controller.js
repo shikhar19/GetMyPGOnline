@@ -1164,6 +1164,7 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 module.exports.removeUserBan = async (req, res) => {
+  debugger;
   let user = await DeletedUsers.findById(req.params.id);
   let requestedUser = await RequestBanRemovalUsers.findById(req.params.id);
   if (user) {
@@ -1173,6 +1174,7 @@ module.exports.removeUserBan = async (req, res) => {
       email: user.email,
       password: user.password,
       isEmailVerified: user.isEmailVerified,
+      isContactVerified: user.isContactVerified,
       contact: user.contact,
       role: user.role,
       img: {
