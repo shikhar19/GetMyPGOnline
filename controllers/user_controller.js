@@ -455,13 +455,11 @@ module.exports.login = async (req, res) => {
     (await DeletedUsers.findOne({ email: emailormobile })) ||
     (await DeletedUsers.findOne({ contact: emailormobile }));
   if (user1) {
-    return res
-      .status(401)
-      .json({
-        success: false,
-        message:
-          "You are Banned from our services! If you did it accidently or think it's incorrect then you can request our admins to remove ban!"
-      });
+    return res.status(401).json({
+      success: false,
+      message:
+        "You are Banned from our services! If you did it accidently or think it's incorrect then you can request our admins to remove ban!"
+    });
   }
   if (!user) {
     return res.status(400).json({ success: false, message: "User not found!" });
@@ -1242,6 +1240,11 @@ module.exports.requestRemoveBan = async (req, res) => {
   } else if (requestedUser) {
     res.status(200).json({ message: "Your Request is Already in Process!" });
   } else {
-    res.status(400).json({ message: "You can't request!" });
+    let user1 = await User.findOne({ email: req.params.email });
+    if (user1)
+      return res
+        .status(400)
+        .json({ message: "You are not banned from our services!" });
+    return res.status(400).json({ message: "You are not registered yet!" });
   }
 };
