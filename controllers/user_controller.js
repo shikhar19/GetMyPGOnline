@@ -457,7 +457,11 @@ module.exports.login = async (req, res) => {
   if (user1) {
     return res
       .status(401)
-      .json({ success: false, message: "You are Banned from our services!" });
+      .json({
+        success: false,
+        message:
+          "You are Banned from our services! If you did it accidently or think it's incorrect then you can request our admins to remove ban!"
+      });
   }
   if (!user) {
     return res.status(400).json({ success: false, message: "User not found!" });
