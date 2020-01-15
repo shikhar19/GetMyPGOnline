@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GetMyPGOnline</title>
+    <link rel="icon" href="./css/assets/logo.png" type="image/x-icon">
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel='stylesheet'>
+    <link href='css/bootstrap.css' rel='stylesheet' />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- CSS  -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
+    <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection" />
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script>
+        // enable the visual refresh
+        google.maps.visualRefresh = true;
+        var map;
+        function initialize() {
+            var mapOptions = {
+                zoom: 15,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            map = new google.maps.Map(document.getElementById('map-canvas'),
+                mapOptions);
+            // try HTML5 geolocation
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var pos = new google.maps.LatLng(position.coords.latitude,
+                        position.coords.longitude);
+
+                    var infowindow = new google.maps.InfoWindow({
+                        map: map,
+                        position: pos,
+                        content: '10 freelancers are available near your location!'
+                    });
+
+                    map.setCenter(pos);
+                }, function () {
+                    handleNoGeolocation(true);
+                });
+            } else {
+                // browser doesn't support geolocation
+                handleNoGeolocation(false);
+            }
+        }
+
+        function handleNoGeolocation(errorFlag) {
+            if (errorFlag) {
+                var content = 'Error: The Geolocation service failed.';
+            } else {
+                var content = 'Error: Your browser doesn\'t support geolocation.';
+            }
+
+            var options = {
+                map: map,
+                position: new google.maps.LatLng(60, 105),
+                content: content
+            };
+
+            var infowindow = new google.maps.InfoWindow(options);
+            map.setCenter(options.position);
+        }
+        google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+
+<body>
+    <nav class="white" role="navigation">
+        <div class="nav-wrapper container">
+            <a id="logo-container" href="" class="brand-logo"><img src="css/assets/GetMyPG-Online.JPG"
+                    class="logo-img"></a>
+            <ul class="right hide-on-med-and-down tabs-fixed-width">
+                <li><a class="test" href="#">How it Works</a></li>
+                <li><a class="test test1" href="#">Post A PG</a></li>
+                <li><a href="./register.html" id="download-button"
+                class="btn-large waves-effect waves-light teal freelancing register-button test1" style="margin-top: auto; margin-left: 0px; margin-right: 20px;">Register</a></li>
+                <li><a href="./hire.html" id="download-button" class="btn-large waves-effect waves-light transparent hire1" style="margin-left: 0px; margin-right: 20px;">Login</a></li>
+            </ul>
+            <ul id="nav-mobile" class="sidenav">
+                <li><a href="#">How it Works</a></li>
+                <li><a href="#">Post A PG</a></li>
+                <li><a href="./register.html" id="download-button"
+                class="btn-large waves-effect waves-light teal freelancing">Register</a></li>
+                <li><a href="./hire.html" id="download-button" class="btn-large waves-effect waves-light transparent hire1" style="color: teal;">Login</a></li>
+            </ul>
+            <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        </div>
+    </nav>
+
+    <div class="fixed-action-btn">
+        <a id="mybtn" class="btn-floating btn-large red pulse">
+            <i class="large material-icons tooltipped" data-position="left" data-tooltip="Contact Us">send</i>
+        </a>
+        <ul>
+            <li><a class="btn-floating red tooltipped" data-position="left" data-tooltip="Quick Feedback"><i
+                        class="material-icons">thumbs_up_down</i></a></li>
+            <li><a class="btn-floating green tooltipped" data-position="left" data-tooltip="Upload An Issue"><i
+                        class="material-icons">attach_file</i></a></li>
+        </ul>
+    </div>
+    <!-- Tap Target Structure -->
+    <div class="tap-target red" data-activates="mybtn">
+        <div class="tap-target-content">
+            <h5 class="tap-target-content-header">We are here for you!</h5>
+            <p>You can connect with us 24*7 if you have an issue or
+                you want to share something with us!</p>
+            <a href="#!" onclick="$('.tap-target').tapTarget('close')">Dismiss</a>
+        </div>
+    </div>
+
+    <div class="carousel carousel-slider center">
+        <div class="carousel-fixed-item center">
+            <a href="#" id="download-button"
+                class="btn-large waves-effect waves-light teal lighten-1 z-depth-5 freelancing">Explore PGs</a><a href="#" id="download-button"
+                class="btn-large waves-effect waves-light transparent lighten-1 z-depth-5 hire">Add PGs</a>
+        </div>
+        <div class="carousel-item" href="#one!" style="visibility: visible;">
+            <div class="tp-caption header centered teal-text hide-n-seek">
+                EASY HANDOVERS!
+                <h5 class="header col s12 light peek">The handover is expected to be completed in the 2 days after contacting the owner.</h5>
+            </div>
+            <img src="css/assets/image4.jpg" alt="Slider Image 1" class="slider-img">
+        </div>
+        <div class="carousel-item" style="visibility: visible;" href="#two!">
+            <div class="tp-caption header centered teal-text hide-n-seek">
+                SEE BEFORE BUYING!
+                <h5 class="header col s12 light peek">Find trusted owners and reliable Tenants!</h5>
+            </div>
+            <img src="css/assets/image5.jpg" alt="Slider Image 2" class="slider-img">
+        </div>
+        <div class="carousel-item" style="visibility: visible;" href="#three!">
+            <div class="tp-caption header centered teal-text hide-n-seek">
+                ACCORDING TO YOUR NEEDS!
+                <h5 class="header col s12 light peek">Require Meals! Check.<br>
+                    Furnished! Check.</h5>
+            </div>
+            <img src="css/assets/image6.jpg" alt="Slider Image 3" class="slider-img">
+        </div>
+        <div class="carousel-item" style="visibility: visible;" href="#four!">
+            <div class="tp-caption header centered teal-text hide-n-seek">
+                EASY PAYMENT!
+                <h5 class="header col s12 light peek">Secure & Easy Payment Online!</h5>
+            </div>
+            <img src="css/assets/image7.jpg" alt="Slider Image 4" class="slider-img">
+        </div>
+    </div>
+
+    <br>
+
+    <div class="container">
+        <div class="section">
+            <!--   Icon Section   -->
+            <div class="row">
+                <div class="col s12 m4">
+                    <div class="icon-block">
+                        <h2 class="center"><img src="css/assets/image1.png" style="max-height: 10%; max-width: 50%;">
+                        </h2>
+                        <h5 class="center headings">Verified Properties</h5>
+
+                        <p class="light center content">Verify the actual details of the property by Document Verification and Owner Verification. We allow them to post PG only when the Owner is verified by Admins.</p>
+                    </div>
+                </div>
+                <div class="col s12 m4">
+                    <div class="icon-block">
+                        <h2 class="center teal-text"><img src="css/assets/image2.png"
+                                style="max-height: 10%; max-width: 50%;"></h2>
+                        <h5 class="center headings">Reliable Tenants
+                        </h5>
+
+                        <p class="light center content">Helps to you find best tenants. Generally, the one who are working in organizations nearby can only use our services, making them reliable.
+                        </p>
+                    </div>
+                </div>
+                <div class="col s12 m4">
+                    <div class="icon-block">
+                        <h2 class="center brown-text"><img src="css/assets/image3.png"
+                                style="max-height: 10%; max-width: 50%;"></h2>
+                        <h5 class="center headings">Streamlined Processing</h5>
+
+                        <p class="light center content">Getting tenants and verified properties has never
+                            been easier. "GetMyPGOnline" really helps in streamline process & payment. We follow  effective working methods to manage owners & tenants.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="parallax-container valign-wrapper">
+        <div class="section no-pad-bot">
+            <div class="container">
+                <div class="row center">
+                    <h5 class="header col s12 light parallax-content">“Better an empty house than a bad tenant.”</h5>
+                    <h6 style="font-family:Montserrat;">― Md. Ziaul Haque</h6>
+                </div>
+            </div>
+        </div>
+        <div class="parallax"><img src="css/assets/background5.jpg" alt="Unsplashed background img 2"
+                style="width: 20%"></div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <div class="row">
+                <div class="col s12 center">
+                    <h3><i class="mdi-content-send brown-text"></i></h3>
+                    <h4 style="font-family:Montserrat;">Make Things Happen!</h4>
+                    <div id="map-canvas"></div>
+                    <p style="font-family:Montserrat;">We shortlist the quality freelancers to increase the efficiency
+                        of your organization on the basis of your skill requirements nearby you. Not only this, we
+                        streamlined the process for smooth hiring. Only pay for what you want with secure
+                        billings and invoices. Hire the best freelancers according to your needs. What's in if for
+                        freelancers? Well, we help them to work with best organizations, great people and even provide
+                        provide them various benifits. Get shortlisted
+                        on the basis of your skills and get paid!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h5 style="font-family: Montserrat; margin-left: 4%;">Our Team:</h5>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <div class="col-md-4 col-sm-6">
+                    <div class="card-container z-depth-5">
+                        <div class="card">
+                            <div class="front">
+                                <div class="cover">
+                                    <img src="css/assets/rotating_card_thumb2.png" />
+                                </div>
+                                <div class="user">
+                                    <img class="img-circle" src="css/assets/person.png" />
+                                </div>
+                                <div class="content">
+                                    <div class="main">
+                                        <h4 class="name" style="font-family:Montserrat; font-weight: 500;">Ritwick Bhargav</h4>
+                                        <p class="profession" style="font-family:Montserrat; font-weight: 500;">Backend Developer(Node.js)
+                                        </p>
+                                        <p class="text-center"
+                                            style="font-family:Montserrat; font-weight: 500; line-height: 1.5;">"When I first heard the concept behind "GetMyPGOnline", I was determined to work on this. And here we're putting it all together."
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end front panel -->
+                            <div class="back">
+                                <div class="content">
+                                    <div class="main"><br><br>
+                                        <h5 class="text-center" style="font-family:Montserrat; font-weight: 800;">Backend
+                                            Developer
+                                        </h5><br>
+                                        <p class="text-center" style="font-family:Montserrat; font-weight: 500;line-height: inherit;"><b>Worked
+                                            On:</b> <br>Mongodb, Express.js, Node.js</p>
+                                        <br><br>
+                                        <div class="stats-container">
+                                            <p style="font-family:Montserrat; font-weight: 800;">Stats:</p>
+                                            <div class="stats">
+                                                <h5 style="font-family:Montserrat; font-weight: 500;">400+</h5>
+                                                <p style="font-family:Montserrat; font-weight: 500;">Commits</p>
+                                            </div>
+                                            <div class="stats">
+                                                <h5 style="font-family:Montserrat; font-weight: 500;">100+</h5>
+                                                <p style="font-family:Montserrat; font-weight: 500; line-height: 1.5;">
+                                                    Pull Requests</p>
+                                            </div>
+                                            <div class="stats">
+                                                <h5 style="font-family:Montserrat; font-weight: 500;">5+</h5>
+                                                <p style="font-family:Montserrat; font-weight: 500; line-height: 1.5;">
+                                                    Projects</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card-container z-depth-5">
+                        <div class="card">
+                            <div class="front">
+                                <div class="cover">
+                                    <img src="css/assets/rotating_card_thumb2.png" />
+                                </div>
+                                <div class="user">
+                                    <img class="img-circle" src="css/assets/person1.png" />
+                                </div>
+                                <div class="content">
+                                    <div class="main">
+                                        <h4 class="name" style="font-family:Montserrat; font-weight: 500;">Shreeyanshi
+                                        </h4>
+                                        <p class="profession" style="font-family:Montserrat; font-weight: 500;">
+                                            Front-End Developer(Material CSS)
+                                        </p>
+                                        <p class="text-center"
+                                            style="font-family:Montserrat; font-weight: 500; line-height: 1.5;">"Managing the frontend part was a great thing for me! It was fun to work with you guys."
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end front panel -->
+                            <div class="back">
+                                <div class="content">
+                                    <div class="main"><br><br>
+                                        <h5 class="text-center" style="font-family:Montserrat; font-weight: 800;">
+                                            Front-End Developer
+                                        </h5><br>
+                                        <p class="text-center" style="font-family:Montserrat; font-weight: 500;line-height: inherit;"><b>Worked
+                                            On:</b> <br>HTML, CSS, Bootstrap, Javascript, MaterialCSS</p>
+                                        <br><br>
+                                        <div class="stats-container">
+                                            <p style="font-family:Montserrat; font-weight: 800;">Stats:</p>
+                                            <div class="stats">
+                                                <h5 style="font-family:Montserrat; font-weight: 500;">100+</h5>
+                                                <p style="font-family:Montserrat; font-weight: 500;">Commits</p>
+                                            </div>
+                                            <div class="stats">
+                                                <h5 style="font-family:Montserrat; font-weight: 500;">20+</h5>
+                                                <p style="font-family:Montserrat; font-weight: 500; line-height: 1.5;">
+                                                    Pull Requests</p>
+                                            </div>
+                                            <div class="stats">
+                                                <h5 style="font-family:Montserrat; font-weight: 500;">5+</h5>
+                                                <p style="font-family:Montserrat; font-weight: 500; line-height: 1.5;">
+                                                    Projects</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card-container z-depth-5">
+                        <div class="card">
+                            <div class="front">
+                                <div class="cover">
+                                    <img src="css/assets/rotating_card_thumb2.png" />
+                                </div>
+                                <div class="user">
+                                    <img class="img-circle" src="css/assets/person.png" />
+                                </div>
+                                <div class="content">
+                                    <div class="main">
+                                        <h4 class="name" style="font-family:Montserrat; font-weight: 500;">Shikhar Sen</h4>
+                                        <p class="profession" style="font-family:Montserrat; font-weight: 500;">UI
+                                            Designer
+                                        </p>
+                                        <p class="text-center"
+                                            style="font-family:Montserrat; font-weight: 500; line-height: 1.5;">"Well,I designed the whole structure & managed the workflow of whole project."
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end front panel -->
+                            <div class="back">
+                                <div class="content">
+                                    <div class="main"><br><br>
+                                        <h5 class="text-center" style="font-family:Montserrat; font-weight: 800;">UI
+                                            Designer
+                                        </h5><br>
+                                        <p class="text-center" style="font-family:Montserrat; font-weight: 500;line-height: inherit;"><b>Worked
+                                            On:</b> <br>AdobeXD, Figma</p>
+                                        <br><br>
+                                        <div class="stats-container">
+                                            <p style="font-family:Montserrat; font-weight: 800;">Stats:</p>
+                                            <div class="stats">
+                                                <h5 style="font-family:Montserrat; font-weight: 500;">100+</h5>
+                                                <p style="font-family:Montserrat; font-weight: 500;">Commits</p>
+                                            </div>
+                                            <div class="stats">
+                                                <h5 style="font-family:Montserrat; font-weight: 500;">40+</h5>
+                                                <p style="font-family:Montserrat; font-weight: 500; line-height: 1.5;">
+                                                    Pull Requests</p>
+                                            </div>
+                                            <div class="stats">
+                                                <h5 style="font-family:Montserrat; font-weight: 500;">2+</h5>
+                                                <p style="font-family:Montserrat; font-weight: 500; line-height: 1.5;">
+                                                    Projects</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end row -->
+
+        </div>
+    </div>
+
+    <div class="parallax-container valign-wrapper">
+        <div class="section no-pad-bot">
+            <div class="container">
+                <div class="row center">
+                    <h5 class="header col s12 light parallax-content">"True Hospitality is welcoming the stranger on their own terms. This kind of hospitality can only be offered by those who’ve found the center of their lives in their own hearts.”</h5>
+                </div>
+            </div>
+        </div>
+        <div class="parallax"><img src="css/assets/background10.jpg" alt="Unsplashed background img 3"
+                style="width: 20%"></div>
+    </div>
+
+    <footer class="page-footer teal" style="padding-top: 0px;">
+        <div class="footer-copyright center">
+            <div class="container">
+                © Made by: <a class="brown-text text-lighten-4" href="http://www.github.com/RitwickBhargav">Ritwick
+                    Bhargav</a>
+            </div>
+        </div>
+    </footer>
+
+    <!--  Scripts-->
+    <script src="js/bootstrap.js" type="text/javascript"></script>
+    <script src="js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $().ready(() => {
+            $('[rel="tooltip"]').tooltip();
+
+        });
+
+        function rotateCard(btn) {
+            var $card = $(btn).closest('.card-container');
+            if ($card.hasClass('hover')) {
+                $card.removeClass('hover');
+            } else {
+                $card.addClass('hover');
+            }
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="js/materialize.js"></script>
+    <script src="js/init.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js'></script>
+    <script src="js/index.js"></script>
+</body>
+</html>
