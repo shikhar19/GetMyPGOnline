@@ -349,7 +349,6 @@ sendRemoveBanByAdminVerified = async (req, res) => {
 };
 
 module.exports.register = async (req, res) => {
-  debugger;
   let { fname, lname, email, contact, password, cpassword, role } = req.body;
   var name;
   if(lname === "")
