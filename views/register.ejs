@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register User</title>
+    <link rel="icon" href="./css/assets/logo.png" type="image/x-icon">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <link src="https://formvalidation.io/vendors/formvalidation/css/formValidation.min.css">
+    </link>
+    <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
+    <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    <nav class="white" role="navigation">
+        <div class="nav-wrapper container">
+            <a id="logo-container" href="/" class="brand-logo"><img src="css/assets/GetMyPG-Online.JPG"
+                    class="logo-img"></a>
+            <ul class="right hide-on-med-and-down tabs-fixed-width">
+                <li><a class="test reg1" href="#" style="text-decoration: none;">How it Works</a></li>
+                <li><a class="test test1 reg1" href="#" style="text-decoration: none;">Post A PG</a></li>
+            </ul>
+            <ul id="nav-mobile" class="sidenav">
+                <li><a href="#" class="reg1" style="text-decoration: none;">How it Works</a></li>
+                <li><a href="#" class="reg1" style="text-decoration: none;">Post A PG</a></li>
+            </ul>
+            <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        </div>
+    </nav>
+
+    <div id="flayer" class="wrapper">
+        <!-- Material form register -->
+        <div class="card z-depth-4">
+
+            <div class="top">
+                <br>
+                <h5 class="center inside-text">Start Exploring!</h5>
+                <p class="center inside-text1">Choose your role and start exploring!<br>You can start using all of Get-My-PG-Online's features<br>to explore, book your PG, and all of this at just one click.<br>(NOTE:- You need to verify your E-mail & contact No.)</p>
+            </div>
+
+            <!--Card content-->
+            <div class="card-body px-lg-5 pt-0">
+
+                <!-- Form -->
+                <form class="text-center" id="form" novalidate="novalidate" action="/api/users/register" method="post">
+
+                    <div class="form-row">
+                        <div class="col">
+                            <!-- First name -->
+                            <div class="input-field col s6 few-more">
+                                <input id="fname" type="text" name="fname" required="" aria-required="true">
+                                <label for="fname" class="details">First Name<p
+     class="star">*</p></label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <!-- Last name -->
+                            <div class="input-field col s6 few-more">
+                                <input id="lname" type="text" name="lname">
+                                <label for="lname" style="font-family: Montserrat;">Last Name</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- E-mail -->
+                    <div class="input-field col s12 few-more1">
+                        <input id="email" type="email" name="email" required="" aria-required="true">
+                        <label for="email" class="details">Email<p class="star">*</p></label>
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="input-field col s12 few-more">
+                        <input id="contact" type="tel" name="contact" required="" aria-required="true">
+                        <label for="contact" class="details">Contact<p class="star">*</p></label>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-field col s12 few-more">
+                        <input id="password" type="password" name="password" required="" aria-required="true">
+                        <label for="password" class="details">Password<p class="star">*</p></label>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="input-field col s12 few-more">
+                        <input id="cpassword" type="password" required="" name="cpassword" aria-required="true">
+                        <label for="cpassword" class="details">Confirm Password<p class="star">*</p></label>
+                    </div>
+                    <select class="browser-default" required="true" name="role" id="role">
+                        <option value="" disabled selected class="details">Role<p class="star">*</p></option>
+                        <option value="admin" class="details">Admin</option>
+                        <option value="owner" class="details">Owner</option>
+                        <option value="tenant" class="details">Tenant</option>
+                      </select>
+                    <!-- Sign up button -->
+                    <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-4" type="submit" id="register">Sign Up</button>
+
+                    <!-- Log in button -->
+                    <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-4" type="button" id="login">Login</button>
+
+                    <hr>
+
+                    <!-- Terms of service -->
+                    <div style="align-items: center;">
+                        <p style="margin:0px; font-family:Montserrat;">By clicking
+                            "Sign Up" you agree to our
+                            <a href="/du" target="_blank">Terms & Conditions</a>
+                    </div>
+                </form>
+                <!-- Form -->
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"
+        integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.3/es6-shim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="js/materialize.js"></script>
+    <script src="js/init.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js'></script>
+    <script src="js/index.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+    <script>
+        $("#form").validate({
+            rules: {
+                fname: {
+                    required: true,
+                    minlength: 5
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                contact: {
+                    required: true,
+                    minlength: 10
+                },
+                password: {
+                    required: true,
+                    minlength: 5
+                },
+                cpassword: {
+                    required: true,
+                    minlength: 5,
+                    equalTo: "#password"
+                }
+            },
+            //For custom messages
+            messages: {
+                fname: {
+                    required: "Please Enter a Name.",
+                    minlength: "Enter at least 5 characters."
+                },
+                email: {
+                    required: "Please Enter a Email Id."
+                },
+                contact: {
+                    required: "Please Enter Contact No."
+                },
+                password: {
+                    required: "Please Enter a Password."
+                },
+                cpassword: {
+                    required: "Please Enter a Password to confirm."
+                }
+            },
+            errorElement: 'div',
+            errorPlacement: function (error, element) {
+                var placement = $(element).data('error');
+                if (placement) {
+                    $(placement).append(error)
+                } else {
+                    error.insertAfter(element);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

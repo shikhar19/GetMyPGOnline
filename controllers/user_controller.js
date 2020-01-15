@@ -349,7 +349,13 @@ sendRemoveBanByAdminVerified = async (req, res) => {
 };
 
 module.exports.register = async (req, res) => {
-  let { name, email, contact, password, role } = req.body;
+  debugger;
+  let { fname, lname, email, contact, password, cpassword, role } = req.body;
+  var name;
+  if(lname === "")
+    name = fname;
+  else
+    name = fname + " " + lname;
   if (!name || !email || !contact || !password || !role) {
     return res.status(400).json({ message: "All fields are mandatory!" });
   }
