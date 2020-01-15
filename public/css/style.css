@@ -1,0 +1,366 @@
+html,
+.sidenav,
+.test,
+.content,
+.page-footer {
+  font-family: Montserrat;
+}
+
+nav ul a,
+nav .brand-logo {
+  color: #444;
+}
+
+.logo-img {
+  height: -webkit-fill-available;
+  padding-bottom: 5px;
+}
+
+.test:hover {
+  border-bottom: 3.5px solid #26a69a;
+  background-color: transparent;
+  line-height: 60px;
+}
+
+.test1 {
+  margin-right: 20px;
+}
+
+p {
+  line-height: 2rem;
+}
+
+.sidenav-trigger {
+  color: #26a69a;
+}
+
+.tap-target-content {
+  font-family: Montserrat;
+  font-weight: 500;
+}
+
+.tap-target-content-header {
+  text-align: right;
+}
+
+.carousel-slider {
+  height: 500px;
+}
+
+.hire1 {
+  border: 1px solid teal;
+  font-family: Montserrat;
+  color: teal;
+}
+
+.freelancing {
+  margin-right: 2%;
+  font-family: Montserrat;
+  margin-top: 2%;
+  margin-bottom: 2%;
+}
+
+.hire {
+  border: 1px solid grey;
+  font-family: Montserrat;
+}
+
+.carousel-item {
+  position: relative;
+  display: inline-block;
+}
+
+.hide-n-seek {
+  font-size: 300%;
+  line-height: 46px;
+  font-weight: 700;
+  font-family: Montserrat;
+  position: absolute;
+  top: 38%;
+  padding: 25px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  text-shadow: 2px 2px 5px grey;
+}
+
+.peek {
+  font-weight: 400;
+  font-family: Montserrat;
+  color: white;
+  text-shadow: 2px 2px 5px black;
+}
+
+.slider-img {
+  width: 100%;
+  height: 100%;
+}
+
+.headings {
+  font-family: Montserrat;
+  font-weight: 800;
+}
+
+.parallax-content {
+  font-weight: 400;
+  font-family: Montserrat;
+}
+
+.parallax-container {
+  min-height: 380px;
+  line-height: 0;
+  height: auto;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.parallax-container .section {
+  width: 100%;
+}
+
+@media only screen and (max-width: 992px) {
+  .parallax-container .section {
+    top: 40%;
+  }
+  #index-banner .section {
+    top: 10%;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  #index-banner .section {
+    top: 0;
+  }
+}
+
+.icon-block {
+  padding: 0 15px;
+}
+
+.icon-block .material-icons {
+  font-size: inherit;
+}
+
+footer.page-footer {
+  margin: 0;
+}
+
+#map-canvas {
+  width: 100%;
+  height: 400px;
+  margin: 0;
+  padding: 15px;
+}
+
+.tap-target {
+  color: #fff;
+}
+
+.tap-target a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+n:hover,
+.btn:focus,
+.btn:active {
+  outline: 0 !important;
+}
+
+.card-container {
+  -webkit-perspective: 800px;
+  -moz-perspective: 800px;
+  -o-perspective: 800px;
+  perspective: 800px;
+  margin-bottom: 30px;
+}
+
+.card-container:not(.manual-flip):hover .card,
+.card-container.hover.manual-flip .card {
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  -o-transform: rotateY(180deg);
+  transform: rotateY(180deg);
+}
+
+.card-container.static:hover .card,
+.card-container.static.hover .card {
+  -webkit-transform: none;
+  -moz-transform: none;
+  -o-transform: none;
+  transform: none;
+}
+
+.card {
+  -webkit-transition: -webkit-transform 0.5s;
+  -moz-transition: -moz-transform 0.5s;
+  -o-transition: -o-transform 0.5s;
+  transition: transform 0.5s;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -o-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.front,
+.back {
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -o-backface-visibility: hidden;
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.14);
+}
+
+.front {
+  z-index: 2;
+}
+
+.back {
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  -o-transform: rotateY(180deg);
+  transform: rotateY(180deg);
+  z-index: 3;
+}
+
+.back .btn-simple {
+  position: absolute;
+  left: 0;
+  bottom: 4px;
+}
+
+.card {
+  background: none repeat scroll 0 0 #ffffff;
+  border-radius: 4px;
+  color: #444444;
+}
+
+.card-container,
+.front,
+.back {
+  width: 100%;
+  height: 420px;
+  border-radius: 4px;
+}
+
+.card .cover {
+  height: 105px;
+  overflow: hidden;
+  border-radius: 4px 4px 0 0;
+}
+
+.card .cover img {
+  width: 100%;
+}
+
+.card .user {
+  border-radius: 50%;
+  display: block;
+  height: 120px;
+  margin: -55px auto 0;
+  overflow: hidden;
+  width: 120px;
+}
+
+.card .user img {
+  background: none repeat scroll 0 0 #ffffff;
+  border: 4px solid #ffffff;
+  width: 100%;
+}
+
+.card .content {
+  background-color: rgba(0, 0, 0, 0);
+  box-shadow: none;
+  padding: 10px 20px 20px;
+}
+
+.card .content .main {
+  min-height: 160px;
+}
+
+.card .back .content .main {
+  height: 215px;
+}
+
+.card .name {
+  font-size: 22px;
+  line-height: 28px;
+  margin: 10px 0 0;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.card h5 {
+  margin: 5px 0;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.card .profession {
+  color: #999999;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.card .footer {
+  border-top: 1px solid #eeeeee;
+  color: #999999;
+  margin: 30px 0 0;
+  padding: 10px 0 0;
+  text-align: center;
+}
+
+.card .footer .social-links {
+  font-size: 18px;
+}
+
+.card .footer .social-links a {
+  margin: 0 7px;
+}
+
+.card .footer .btn-simple {
+  margin-top: -6px;
+}
+
+.card .header {
+  padding: 15px 20px;
+  height: 90px;
+}
+
+.card .motto {
+  border-bottom: 1px solid #eeeeee;
+  color: #999999;
+  font-size: 14px;
+  font-weight: 400;
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+.card .stats-container {
+  width: 100%;
+  margin-top: 50px;
+}
+
+.card .stats {
+  display: block;
+  float: left;
+  width: 33.333333%;
+  text-align: center;
+}
+
+.card .stats h4 {
+  font-weight: 300;
+  margin-bottom: 5px;
+}
+
+.card .stats p {
+  color: #777777;
+}
+
+.carousel-fixed-item {
+  padding: 5px;
+}
