@@ -24,6 +24,10 @@ app.get("/", (req, res) => {
   return res.status(200).render("index.ejs");
 });
 
+app.get("/register", (req, res) => {
+  return res.status(200).render("register.ejs");
+});
+
 const User = require("./models/User");
 const Pg = require("./models/Pg");
 const DeletedUsers = require("./models/DeletedUsers");
