@@ -349,13 +349,10 @@ sendRemoveBanByAdminVerified = async (req, res) => {
 };
 
 module.exports.register = async (req, res) => {
-  debugger;
   let { fname, lname, email, contact, password, cpassword, role } = req.body;
   var name;
-  if(lname === "")
-    name = fname;
-  else
-    name = fname + " " + lname;
+  if (lname === "") name = fname;
+  else name = fname + " " + lname;
   if (!name || !email || !contact || !password || !role) {
     return res.status(400).json({ message: "All fields are mandatory!" });
   }
@@ -453,13 +450,14 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  let { emailormobile, password } = req.body;
-  let user =
-    (await User.findOne({ email: emailormobile })) ||
-    (await User.findOne({ contact: emailormobile }));
+  let { email, mobile, password } = req.body;
+  var user;
+  user =
+    (await User.findOne({ email: email })) ||
+    (await User.findOne({ contact: mobile }));
   let user1 =
-    (await DeletedUsers.findOne({ email: emailormobile })) ||
-    (await DeletedUsers.findOne({ contact: emailormobile }));
+    (await DeletedUsers.findOne({ email: email })) ||
+    (await DeletedUsers.findOne({ contact: mobile }));
   if (user1) {
     return res.status(401).json({
       success: false,
@@ -963,7 +961,6 @@ module.exports.sendForgetEmail = async (req, res) => {
 };
 
 module.exports.forgetPassword = async (req, res) => {
-  debugger;
   let { id, email } = req.params;
   let { password, confirmPassword } = req.body;
   let user = await User.findOne({ email: email });
@@ -1170,7 +1167,6 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 module.exports.removeUserBan = async (req, res) => {
-  debugger;
   let user = await DeletedUsers.findById(req.params.id);
   let requestedUser = await RequestBanRemovalUsers.findById(req.params.id);
   if (user) {
