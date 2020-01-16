@@ -39,6 +39,10 @@ p {
   font-weight: 500;
 }
 
+#tap-target-content-1 {
+  padding: 46px !important;
+}
+
 .tap-target-content-header {
   text-align: right;
 }
