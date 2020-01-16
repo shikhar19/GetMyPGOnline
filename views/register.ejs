@@ -48,7 +48,9 @@
             <div class="top">
                 <br>
                 <h5 class="center inside-text">Start Exploring!</h5>
-                <p class="center inside-text1">Choose your role and start exploring!<br>You can start using all of Get-My-PG-Online's features<br>to explore, book your PG, and all of this at just one click.<br>(NOTE:- You need to verify your E-mail & contact No.)</p>
+                <p class="center inside-text1">Choose your role and start exploring!<br>You can start using all of
+                    Get-My-PG-Online's features<br>to explore, book your PG, and all of this at just one
+                    click.<br>(NOTE:- You need to verify your E-mail & contact No.)</p>
             </div>
 
             <!--Card content-->
@@ -62,8 +64,7 @@
                             <!-- First name -->
                             <div class="input-field col s6 few-more">
                                 <input id="fname" type="text" name="fname" required="" aria-required="true">
-                                <label for="fname" class="details">First Name<p
-     class="star">*</p></label>
+                                <label for="fname" class="details">First Name<p class="star">*</p></label>
                             </div>
                         </div>
                         <div class="col">
@@ -99,16 +100,19 @@
                         <label for="cpassword" class="details">Confirm Password<p class="star">*</p></label>
                     </div>
                     <select class="browser-default" required="true" name="role" id="role">
-                        <option value="" disabled selected class="details">Role<p class="star">*</p></option>
+                        <option value="" disabled selected class="details">Role<p class="star">*</p>
+                        </option>
                         <option value="admin" class="details">Admin</option>
                         <option value="owner" class="details">Owner</option>
                         <option value="tenant" class="details">Tenant</option>
-                      </select>
+                    </select>
                     <!-- Sign up button -->
-                    <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-4" type="submit" id="register">Sign Up</button>
+                    <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-4" type="submit"
+                        id="register">Sign Up</button>
 
                     <!-- Log in button -->
-                    <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-4" type="button" id="login">Login</button>
+                    <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-4" type="button"
+                        id="login" data-toggle="modal" data-target="#myModal">Login</button>
 
                     <hr>
 
@@ -127,29 +131,30 @@
 
     <footer class="page-footer" style="background-color: teal;">
         <div class="container">
-          <div class="row">
-            <div class="col l6 s12">
-              <h5 class="white-text">GetMyPGOnline</h5>
-              <p class="brown-text text-lighten-4" style="line-height: inherit;">You can explore our services after you register with us.</p>
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="white-text">GetMyPGOnline</h5>
+                    <p class="brown-text text-lighten-4" style="line-height: inherit;">You can explore our services
+                        after you register with us.</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                    <h5 class="white-text">Social Media Links:</h5>
+                    <ul>
+                        <li><a class="brown-text text-lighten-4" href="/#">Linkedin</a></li>
+                        <li><a class="brown-text text-lighten-4" href="/#">Twitter</a></li>
+                        <li><a class="brown-text text-lighten-4" href="/#">Facebook</a></li>
+                        <li><a class="brown-text text-lighten-4" href="/#">Instagram</a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="col l4 offset-l2 s12">
-              <h5 class="white-text">Social Media Links:</h5>
-              <ul>
-                <li><a class="brown-text text-lighten-4" href="/#">Linkedin</a></li>
-                <li><a class="brown-text text-lighten-4" href="/#">Twitter</a></li>
-                <li><a class="brown-text text-lighten-4" href="/#">Facebook</a></li>
-                <li><a class="brown-text text-lighten-4" href="/#">Instagram</a></li>
-              </ul>
-            </div>
-          </div>
         </div>
         <div class="footer-copyright center">
-          <div class="container">
-              © Made by: <a class="brown-text text-lighten-4" href="http://www.github.com/RitwickBhargav">Ritwick
-                  Bhargav</a>
-          </div>
-      </div>
-      </footer>
+            <div class="container">
+                © Made by: <a class="brown-text text-lighten-4" href="http://www.github.com/RitwickBhargav">Ritwick
+                    Bhargav</a>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
@@ -225,5 +230,107 @@
         });
     </script>
 </body>
+<div class="modal fade" id="myModal" style="background: transparent; min-height: 100%">
+              <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content" style="padding: 1px;">
+
+                      <!-- Modal Header -->
+                      <div class="modal-header" style=" padding:0px;">
+                          <div style="background-color: #17A2B8; width:100%">
+                              <br>
+                              <h5 class="center" style="font-family:Montserrat; font-weight: 1000; color: white;">
+                                  Welcome Home!
+                              </h5>
+                              <p class="center"
+                                  style="font-family:Montserrat; margin-top:0px; font-weight: 600; margin-bottom: 28px;">
+                                  Yaayyyy.. Just one step away from Login!
+                              </p>
+                          </div>
+                      </div>
+
+                      <!-- Modal body -->
+                      <div class="modal-body">
+                          <div class="card-body px-lg-5 pt-0" style="padding:0px;">
+
+                              <!-- Form -->
+                              <form class="text-center" style="color: #757575;" id="form1" novalidate="novalidate"
+                              action="/api/users/login" method="post" onsubmit="return checkform()">
+
+                                  <!-- E-mail -->
+                                  <div class="input-field col s12" style="padding:0px;">
+                                      <input id="email1" type="email" name="email">
+                                      <label for="email" style="font-family: Montserrat; display:flex;">Email</label>
+                                  </div>
+
+                                  <!-- Contact -->
+                                  <div class="input-field col s12" style="padding:0px;">
+                                      <input id="mobile1" type="tel" name="mobile">
+                                      <label for="mobile" style="font-family: Montserrat; display:flex;">Contact</label>
+                                  </div>
+
+                                  <!-- Password -->
+                                  <div class="input-field col s12" style="padding:0px;">
+                                      <input id="password1" type="password" name="password">
+                                      <label for="password" style="font-family: Montserrat; display:flex;">Password<p
+                                              style="line-height: 20px;">*</p></label>
+                                  </div>
+
+                                  <!-- Login button -->
+                                  <button
+                                      class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-4"
+                                      type="submit" id="login"
+                                      style="font-family:Montserrat; font-weight: 800; border-width: 2px;">Login</button>
+                              </form>
+                              <!-- Form -->
+
+                          </div>
+                      </div>
+
+                      <!-- Modal footer -->
+                      <div class="modal-footer" style="display: flex;">
+                          <button type="button" class="btn btn-secondary z-depth-2" data-dismiss="modal"
+                              style="background-color:#E73C7E; border:#E73C7E; border-width: 2px;">Close</button>
+                      </div>
+
+                  </div>
+              </div>
+          </div>
+
+    <script>
+        function checkform() {
+            var email = $('#email1').val();
+            var mobile = $('#mobile1').val();
+            var password = $('#password1').val();
+            $(".error").remove();
+            if (email === "" && mobile === "" && password === "") {
+                $('#password1').after('<span class="error">Please Enter a Email Id or Mobile No. & Password</span>');
+                return false;
+            }
+            else if (email === "" && mobile === "") {
+                $('#mobile1').after('<span class="error">Please Enter a Email Id or Mobile No.</span>');
+                return false;
+            }
+            else if (password === "") {
+                $('#password1').after('<span class="error">Password is Required!</span>');
+                return false;
+            }
+            else if (password.length < 5) {
+                $('#password1').after('<span class="error">Password must be at least 5 characters long</span>');
+                return false;
+            } 
+            else {
+                var regEx = /^\S+@\S+\.\S+/;
+                if(email != "")
+                {
+                    var validEmail = regEx.test(email);
+                    if (!validEmail) {
+                        $('#email1').after('<span class="error">Enter a valid email id.</span>');
+                        return false;
+                    }
+                }
+                return true;
+            }
+    }
+    </script>0
 
 </html>
